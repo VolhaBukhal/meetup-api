@@ -7,4 +7,5 @@ export const status = {
   created: 201,
   bad_request: 400,
   no_content: 204,
+  unprocessable_entity: 422
 };
