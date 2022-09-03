@@ -3,7 +3,44 @@ import { pool } from '../db.js'
 import { status, errorMessage } from '../constants/status.js'
 
 export const getMeetups =  async(req, res) => {
-    const getAllMeetupsQuery = 'SELECT * FROM meetup'
+    let getAllMeetupsQuery = 'SELECT * FROM meetup'
+    const getAllMeetupsValues = []
+    const { sort_by, search, title, place, description, limit} = req.query
+
+    if (sort_by) {
+        if (sort_by.charAt(0) === '-') {
+            getAllMeetupsQuery += ` ORDER BY ${sort_by.substring(1)} DESC`
+        } else {
+            getAllMeetupsQuery += ` ORDER BY ${sort_by} ASC`
+        }
+    }
+
+    if (search) {
+        getAllMeetupsQuery += ` WHERE to_tsvector(title || description || place) @@ to_tsquery('${search}')`
+    }
+
+    if (title || place || description) {
+        let titleCondition, placeCondition, descriptionCondition
+        if (title) {
+            titleCondition = ` (title ILIKE '%${title}%')`
+        }
+
+        if (place) {
+            placeCondition = ` (place ILIKE '%${place}%')`
+        }
+
+        if (description) {
+            descriptionCondition = ` (description ILIKE '%${description}%')`
+        }
+
+        getAllMeetupsQuery += ` WHERE ${titleCondition ? titleCondition : ''}
+                              ${placeCondition ? ' AND ' + placeCondition : ''} 
+                              ${descriptionCondition ? ' AND ' + descriptionCondition : ''}`
+    }
+
+    if (limit) {
+        getAllMeetupsQuery += ` LIMIT ${limit}`
+    }
 
     try {
         const meetups = await pool.query(getAllMeetupsQuery)
@@ -14,6 +51,7 @@ export const getMeetups =  async(req, res) => {
     } catch (error) {
         res.status(status.error).send(errorMessage);
     }
+
 }
 
 export const createMeetup = async (req, res) => {
