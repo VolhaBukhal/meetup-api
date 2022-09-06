@@ -33,9 +33,9 @@ export const getMeetups =  async(req, res) => {
             descriptionCondition = ` (description ILIKE '%${description}%')`
         }
 
-        getAllMeetupsQuery += ` WHERE ${titleCondition ? titleCondition : ''}
-                              ${placeCondition ? ' AND ' + placeCondition : ''} 
-                              ${descriptionCondition ? ' AND ' + descriptionCondition : ''}`
+        const filterArr = [titleCondition??'', placeCondition??'', descriptionCondition??''].filter(item => item).join(' AND')
+
+        getAllMeetupsQuery +=` WHERE ${filterArr}`
     }
 
     if (limit) {
@@ -45,9 +45,9 @@ export const getMeetups =  async(req, res) => {
     try {
         const meetups = await pool.query(getAllMeetupsQuery)
         if (!meetups.rowCount) {
-            res.status(status.success).send('No meetups in database')
+            return res.status(status.success).send('No meetups in database')
         }
-        res.json(meetups.rows)
+        return res.json(meetups.rows)
     } catch (error) {
         res.status(status.error).send(errorMessage);
     }
@@ -57,14 +57,15 @@ export const getMeetups =  async(req, res) => {
 export const createMeetup = async (req, res) => {
     const id = uuid();
     const { title, description, time, place } = req.body
-    const createMeetupsQuery = 'INSERT INTO meetup (id_meetup, title, description, time, place) values($1, $2, $3, $4, $5) RETURNING *'
-    const queryValues = [id, title, description, time, place]
+    const { id: user_id } = req.user
+    const createMeetupsQuery = 'INSERT INTO meetup (id_meetup, title, description, time, place, fk_user_id) values($1, $2, $3, $4, $5, $6) RETURNING *'
+    const queryValues = [id, title, description, time, place, user_id]
 
     try {
         const newMeetup = await pool.query(createMeetupsQuery, queryValues)
         res.status(status.created).json(newMeetup.rows[0])
     } catch (err) {
-        res.status(status.error).json('Time format example: 2022-01-08 04:05:06 or 2022-01-08')
+        res.status(status.error).json({message: 'Something wrong with request'})
     }
 }
 
@@ -101,14 +102,16 @@ export const deleteMeetup = async (req, res) => {
 export const updateMeetup = async (req, res) => {
     const { id } = req.params
     const { title, description, time, place } = req.body
+    const { id: user_id } = req.user
     
-    const updateMeetupQuery = 'UPDATE meetup SET title = COALESCE($1, title), description = COALESCE($2, description), time = COALESCE($3, time), place = COALESCE($4, place) WHERE id_meetup = $5 RETURNING *'
-    const updateMeetupQueryValues = [title, description, time, place, id]
+    const updateMeetupQuery = 'UPDATE meetup SET title = COALESCE($1, title), description = COALESCE($2, description), time = COALESCE($3, time), place = COALESCE($4, place), fk_user_id = COALESCE($5, fk_user_id)  WHERE id_meetup = $6 RETURNING *'
+    const updateMeetupQueryValues = [title, description, time, place, id, user_id]
 
     try {
         const updatedMeetup = await pool.query(updateMeetupQuery, updateMeetupQueryValues)
-        res.status(status.no_content).json('Meetup is updated')
+        res.status(status.no_content).json({message: 'Meetup is updated'})
     } catch (error) {
+        console.log(error)
         res.status(status.error).send(errorMessage);
     }
 }
