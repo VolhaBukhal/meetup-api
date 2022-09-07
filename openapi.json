@@ -17,6 +17,14 @@
     "description": "Find out more about Swagger",
     "url": "http://swagger.io"
   },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+
+    }
+  },
   "host": "localhost:5000",
   "basePath": "/",
   "schemes": ["http"],
@@ -127,6 +135,11 @@
         "tags": [
           "meetups"
         ],
+        "security": [
+          {
+             "bearerAuth": []
+          }
+       ],
         "operationId": "createMeetup",
         "summary": "Create meetup",
         "requestBody": {
@@ -304,9 +317,112 @@
           }
         }
       }
+    },
+    "/auth/registration": {
+      "post": {
+        "tags": [
+          "User registration"
+        ],
+        "operationId": "registerUser",
+        "summary": "User registration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "email": "admin@admin.com",
+                  "password": "1111",
+                  "roles": "ADMIN"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "created ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "User: {user email} was registered successfully"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "User login"
+        ],
+        "operationId": "loginUser",
+        "summary": "User login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "email": "hello@hello.com",
+                  "password": "1111"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "created ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzZGU2ODIxLWFiNGUtNDllNy05YjJjLWQ3NTk3MjdmNDFmNiIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2MjUzNjYyNCwiZXhwIjoxNjYyNTM4NDI0fQ.6uNXwvFSZh7UfGRxTF7f--ue6wSlloXSz5yndgmwu-E",
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzZGU2ODIxLWFiNGUtNDllNy05YjJjLWQ3NTk3MjdmNDFmNiIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2MjUzNjYyNCwiZXhwIjoxNjYyNjIzMDI0fQ.UrByHnVMTcEVFOarDad8Xt5Fsf6bvnam62QjnBgynzI",
+                    "user": {
+                      "id": "03de6821-ab4e-49e7-9b2c-d759727f41f6",
+                      "email": "admin@admin.com",
+                      "role": "USER"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
+  
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Tag": {
         "type": "string",
