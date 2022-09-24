@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import swaggerUi  from 'swagger-ui-express'
-const swaggerDocument = JSON.parse(fs.readFileSync('./openapi.json'))
+const swaggerDocument = JSON.parse(fs.readFileSync('./swagger/openapi.json'))
 import meetupsRoutes from './routes/meetups.js'
 import authRoutes from './routes/auth.js'
 

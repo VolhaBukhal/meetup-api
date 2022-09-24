@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import { pool } from '../db.js'
+import { pool} from '../config/db.js'
 import { status, errorMessage } from '../constants/status.js'
 
 export const getMeetups =  async(req, res) => {

@@ -1,4 +1,4 @@
-import { pool } from '../db.js'
+import { pool } from '../config/db.js'
 import { v4 as uuid } from 'uuid'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
