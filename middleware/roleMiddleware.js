@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken'
-import { status } from '../constants/status.js'
+const jwt = require('jsonwebtoken')
+const { status } = require('@constants/status')
 
-export const roleMiddleware = (roles) => (req, res, next) => {
+const roleMiddleware = () => (req, res, next) => {
   if (req.method === 'OPTIONS') {
     next()
   }
@@ -21,10 +21,11 @@ export const roleMiddleware = (roles) => (req, res, next) => {
       return res
         .status(status.unauthorized)
         .json({ message: 'Access has only admin!' })
-    } else {
-      next()
     }
+    next()
   } catch (err) {
     console.log(err)
   }
 }
+
+module.exports = { roleMiddleware }

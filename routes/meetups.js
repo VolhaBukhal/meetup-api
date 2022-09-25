@@ -1,14 +1,16 @@
-import express from 'express'
-import {
+const express = require('express')
+const { meetupSchema, updateMeetupSchema } = require('@validation/schemas')
+const { authMiddleware } = require('@middleware/authMiddleware')
+const {
+  meetupValidationMiddleware,
+} = require('@middleware/validationMiddleware')
+const {
   getMeetups,
   createMeetup,
   getMeetupById,
   deleteMeetup,
   updateMeetup,
-} from '../controllers/meetups.js'
-import { meetupValidationMiddleware } from '../middleware/validationMiddleware.js'
-import { authMiddleware } from '../middleware/authMiddleware.js'
-import { meetupSchema, updateMeetupSchema } from '../validation/schemas.js'
+} = require('@controllers/meetups')
 
 const router = express.Router()
 
@@ -32,4 +34,4 @@ router.patch(
   updateMeetup
 )
 
-export default router
+module.exports = router

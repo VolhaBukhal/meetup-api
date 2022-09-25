@@ -1,8 +1,8 @@
-import { v4 as uuid } from 'uuid'
-import { pool } from '../config/db.js'
-import { status, errorMessage } from '../constants/status.js'
+const {v4 } = require ('uuid')
+const { pool } = require('@config/db')
+const { status, errorMessage } = require('@constants/status')
 
-export const getMeetups = async (req, res) => {
+const getMeetups = async (req, res) => {
   let getAllMeetupsQuery = 'SELECT * FROM meetup'
   const { sort_by, search, title, place, description, limit } = req.query
 
@@ -60,8 +60,8 @@ export const getMeetups = async (req, res) => {
   }
 }
 
-export const createMeetup = async (req, res) => {
-  const id = uuid()
+const createMeetup = async (req, res) => {
+  const id = v4()
   const { title, description, time, place } = req.body
   const { id: user_id } = req.user
   const createMeetupsQuery =
@@ -76,7 +76,7 @@ export const createMeetup = async (req, res) => {
   }
 }
 
-export const getMeetupById = async (req, res) => {
+const getMeetupById = async (req, res) => {
   const { id } = req.params
   const getSingleMeetupQuery = 'SELECT * FROM meetup WHERE id_meetup = $1'
 
@@ -91,7 +91,7 @@ export const getMeetupById = async (req, res) => {
   }
 }
 
-export const deleteMeetup = async (req, res) => {
+const deleteMeetup = async (req, res) => {
   const { id } = req.params
   const deleteMeetupQuery = 'DELETE FROM meetup WHERE id_meetup = $1'
   try {
@@ -110,7 +110,7 @@ export const deleteMeetup = async (req, res) => {
   }
 }
 
-export const updateMeetup = async (req, res) => {
+const updateMeetup = async (req, res) => {
   const { id } = req.params
   const { title, description, time, place } = req.body
   const { id: user_id } = req.user
@@ -129,4 +129,13 @@ export const updateMeetup = async (req, res) => {
     console.log(error)
     res.status(status.error).send(errorMessage)
   }
+}
+
+
+module.exports = {
+  getMeetups,
+  createMeetup,
+  getMeetupById,
+  deleteMeetup,
+  updateMeetup
 }

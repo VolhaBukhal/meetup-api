@@ -1,14 +1,14 @@
-import { status } from '../constants/status.js'
-import {
+const { status } = require( '@constants/status')
+const {
   userExists,
   createUser,
   getAllUsers,
   matchPassword,
   generateTokens,
   saveToken,
-} from '../helpers/auth.js'
+} = require( '@helpers/auth')
 
-export const registration = async (req, res) => {
+const registration = async (req, res) => {
   try {
     const { email, password, role } = req.body
     const userIsExist = await userExists(email)
@@ -24,7 +24,7 @@ export const registration = async (req, res) => {
   }
 }
 
-export const login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body
     const userIsExist = await userExists(email)
@@ -61,11 +61,17 @@ export const login = async (req, res) => {
   }
 }
 
-export const getUsers = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
     const users = await getAllUsers()
     res.send(users)
   } catch {
     res.status(status.error).json({ message: 'error' })
   }
+}
+
+module.exports = {
+  registration,
+  login,
+  getUsers
 }

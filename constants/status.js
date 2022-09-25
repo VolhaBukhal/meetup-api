@@ -1,6 +1,6 @@
-export const errorMessage = 'error'
+const errorMessage = 'error'
 
-export const status = {
+const status = {
   success: 200,
   error: 500,
   not_found: 404,
@@ -9,4 +9,9 @@ export const status = {
   unauthorized: 403,
   no_content: 204,
   unprocessable_entity: 422,
+}
+
+module.exports = {
+  errorMessage,
+  status,
 }

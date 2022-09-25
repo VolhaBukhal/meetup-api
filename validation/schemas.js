@@ -1,21 +1,27 @@
-import Joi from 'joi'
+const Joi = require('joi')
 
-export const meetupSchema = Joi.object().keys({
+const meetupSchema = Joi.object().keys({
   title: Joi.string().required(),
   description: Joi.string().required(),
   time: Joi.date().required(),
   place: Joi.string().required(),
 })
 
-export const updateMeetupSchema = Joi.object().keys({
+const updateMeetupSchema = Joi.object().keys({
   title: Joi.string(),
   description: Joi.string(),
   time: Joi.date(),
   place: Joi.string(),
 })
 
-export const userSchema = Joi.object().keys({
+const userSchema = Joi.object().keys({
   email: Joi.string().email().required(),
   password: Joi.string().min(4).required(),
   role: Joi.string(),
 })
+
+module.exports = {
+  meetupSchema,
+  updateMeetupSchema,
+  userSchema,
+}

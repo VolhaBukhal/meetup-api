@@ -1,7 +1,6 @@
 {
   "env": {
     "commonjs": true,
-    "es6": true,
     "node": true
   },
   "extends": ["airbnb-base", "prettier"],
@@ -21,15 +20,14 @@
   },
   "settings": {
     "import/resolver": {
-       "node": {
-          "paths": [
-             "src"
-          ],
-          "extensions": [
-             ".js",
-             ".jsx"
-          ]
-       }
-    }
+      "node": {
+         "paths": [
+            "./"
+         ],
+         "extensions": [
+            ".js",
+         ]
+      }
+   }
  }
 }

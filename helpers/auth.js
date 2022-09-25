@@ -1,24 +1,24 @@
-import { pool } from '../config/db.js'
-import { v4 as uuid } from 'uuid'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+const { pool } = require ( '@config/db')
+const { v4} = require ( 'uuid')
+const bcrypt = require ( 'bcrypt')
+const jwt = require ( 'jsonwebtoken')
 
-export const userExists = async (email) => {
+const userExists = async (email) => {
   const data = await pool.query('SELECT * FROM users WHERE email=$1', [email])
 
   if (data.rowCount == 0) return false
   return data.rows[0]
 }
 
-export const findUserById = async (id) => {
+const findUserById = async (id) => {
   const data = await pool.query('SELECT * FROM users WHERE user_id=$1', [id])
 
   if (data.rowCount == 0) return false
   return data.rows[0]
 }
 
-export const createUser = async (email, password, role) => {
-  const id = uuid()
+const createUser = async (email, password, role) => {
+  const id = v4()
   const salt = await bcrypt.genSalt(10)
   const hash = await bcrypt.hash(password, salt)
 
@@ -35,18 +35,18 @@ export const createUser = async (email, password, role) => {
   return data.rows[0]
 }
 
-export const getAllUsers = async () => {
+const getAllUsers = async () => {
   const data = await pool.query('SELECT * FROM users')
 
   return data.rows
 }
 
-export const matchPassword = async (password, hashPassword) => {
+const matchPassword = async (password, hashPassword) => {
   const match = await bcrypt.compare(password, hashPassword)
   return match
 }
 
-export const generateTokens = async (id, roles) => {
+const generateTokens = async (id, roles) => {
   const payload = {
     id,
     roles,
@@ -62,7 +62,7 @@ export const generateTokens = async (id, roles) => {
   return { accessToken, refreshToken }
 }
 
-export const saveToken = async (userId, refreshToken) => {
+const saveToken = async (userId, refreshToken) => {
   const tokenData = await pool.query(
     'SELECT refresh_token FROM users WHERE user_id = $1',
     [userId]
@@ -78,7 +78,7 @@ export const saveToken = async (userId, refreshToken) => {
   }
 }
 
-export const findToken = async (refreshToken) => {
+const findToken = async (refreshToken) => {
   const tokenData = await pool.query(
     'SELECT * FROM users WHERE refresh_token = $1',
     [refreshToken]
@@ -86,7 +86,7 @@ export const findToken = async (refreshToken) => {
   return tokenData
 }
 
-export const refresh = async (refreshToken) => {
+const refresh = async (refreshToken) => {
   if (!refreshToken) {
     throw Error('User is not authorized!')
   }
@@ -107,8 +107,21 @@ export const refresh = async (refreshToken) => {
   await saveToken(user.user_id, refreshToken)
 }
 
-export const checkTokenIsExpired = (expireTime) => {
+const checkTokenIsExpired = (expireTime) => {
   if (Date.now() >= expireTime * 1000) {
     return false
   }
+}
+
+module.exports = {
+  userExists,
+  findUserById,
+  createUser,
+  getAllUsers,
+  matchPassword,
+  generateTokens,
+  saveToken,
+  findToken,
+  refresh,
+  checkTokenIsExpired
 }

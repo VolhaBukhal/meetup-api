@@ -1,11 +1,11 @@
-// import moduleAlias from 'module-alias'
-import express from 'express'
-import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
-import * as fs from 'fs'
-import swaggerUi from 'swagger-ui-express'
-import meetupsRoutes from './routes/meetups.js'
-import authRoutes from './routes/auth.js'
+require('module-alias/register')
+const express = require('express')
+const bodyParser = require('body-parser')
+const dotenv = require('dotenv')
+const fs = require('fs')
+const swaggerUi = require('swagger-ui-express')
+const meetupsRoutes = require('./routes/meetups.js')
+const authRoutes = require('./routes/auth.js')
 
 const swaggerDocument = JSON.parse(fs.readFileSync('./swagger/openapi.json'))
 

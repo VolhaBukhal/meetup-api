@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken'
-import { status } from '../constants/status.js'
+const jwt = require('jsonwebtoken')
+const { status } = require('@constants/status')
 
-export const authMiddleware = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   if (req.method === 'OPTIONS') {
     next()
   }
@@ -30,3 +30,5 @@ export const authMiddleware = async (req, res, next) => {
     return res.status(403).json({ message: 'User is not authorized' })
   }
 }
+
+module.exports = { authMiddleware }
