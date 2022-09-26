@@ -1,6 +1,6 @@
 const { v4 } = require('uuid')
 const { pool } = require('@config/db')
-const { status, errorMessage } = require('@constants/status')
+const { status, errorMessage, infoMessages } = require('@constants')
 
 const getMeetups = async (req, res) => {
   let getAllMeetupsQuery = 'SELECT * FROM meetup'
@@ -72,7 +72,7 @@ const createMeetup = async (req, res) => {
     const newMeetup = await pool.query(createMeetupsQuery, queryValues)
     res.status(status.created).json(newMeetup.rows[0])
   } catch (err) {
-    res.status(status.error).json({ message: 'Something wrong with request' })
+    res.status(status.error).json({ message: infoMessages.WRONG_REQUEST })
   }
 }
 
@@ -83,7 +83,7 @@ const getMeetupById = async (req, res) => {
   try {
     const singleMeetup = await pool.query(getSingleMeetupQuery, [id])
     if (!singleMeetup.rowCount) {
-      res.status(status.not_found).send(`No meetup in database with id: ${id}`)
+      res.status(status.not_found).send(`${infoMessages.NO_MEETUP_IN_DB} ${id}`)
     }
     res.status(status.success).json(singleMeetup.rows[0])
   } catch (err) {
@@ -99,11 +99,11 @@ const deleteMeetup = async (req, res) => {
     if (!responseDB.rowCount) {
       res
         .status(status.not_found)
-        .send(`Meetup with the id: ${id} doesn't exist in database`)
+        .send(`${infoMessages.NO_MEETUP_IN_DB} ${id}`)
     } else {
       res
         .status(status.success)
-        .send(`Meetup with the id: ${id} deleted from database`)
+        .send(`${id} ${infoMessages.DELETED_MEETUP}`)
     }
   } catch (error) {
     res.status(status.error).send(errorMessage)
@@ -124,7 +124,7 @@ const updateMeetup = async (req, res) => {
       updateMeetupQuery,
       updateMeetupQueryValues
     )
-    res.status(status.no_content).json({ message: 'Meetup is updated' })
+    res.status(status.no_content).json({ message: infoMessages.UPDATED_MEETUP })
   } catch (error) {
     console.log(error)
     res.status(status.error).send(errorMessage)

@@ -1,4 +1,4 @@
-const { status } = require('@constants/status')
+const { status } = require('@constants')
 
 const meetupValidationMiddleware = (schema) => (req, res, next) => {
   const { title, description, time, place } = req.body

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { status } = require('@constants/status')
+const { status, infoMessages, userRoles} = require('@constants')
 
 const roleMiddleware = () => (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -12,20 +12,20 @@ const roleMiddleware = () => (req, res, next) => {
     if (!token) {
       return res
         .status(status.unauthorized)
-        .json({ message: 'User is not authorized' })
+        .json({ message: infoMessages.USER_NOT_AUTHORIZED })
     }
 
     const { roles: userRole } = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
 
-    if (userRole !== 'ADMIN') {
+    if (userRole !== userRoles.ADMIN) {
       return res
         .status(status.unauthorized)
-        .json({ message: 'Access has only admin!' })
+        .json({ message: infoMessages.ONLY_ADMIN_ACCESS })
     }
     next()
   } catch (err) {
     console.log(err)
-    res.status(status.no_credentials).json({message: 'Jwt expired' })
+    res.status(status.no_credentials).json({message: infoMessages.JWT_EXPIRED })
   }
 }
 

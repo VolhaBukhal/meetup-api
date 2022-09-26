@@ -41,7 +41,7 @@
   "_moduleAliases": {
     "@root": ".",
     "@config": "./config",
-    "@constants": "./constants",
+    "@constants": "./constants/index.js",
     "@controllers": "./controllers",
     "@helpers": "./helpers",
     "@middleware": "./middleware",

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const { status } = require('@constants/status')
+const { status, infoMessages } = require('@constants')
+
 
 const authMiddleware = async (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +12,7 @@ const authMiddleware = async (req, res, next) => {
     if (!accessToken) {
       return res
         .status(status.unauthorized)
-        .json({ message: 'User is not authorized' })
+        .json({ message: infoMessages.USER_NOT_AUTHORIZED })
     }
 
     const decodedUserData = jwt.verify(
@@ -20,13 +21,13 @@ const authMiddleware = async (req, res, next) => {
     )
 
     if (!decodedUserData) {
-      throw Error('User is not authorized!')
+      throw Error(infoMessages.USER_NOT_AUTHORIZED)
     }
     req.user = decodedUserData
     next()
   } catch (err) {
     console.log(err)
-    return res.status(403).json({ message: 'User is not authorized' })
+    return res.status(403).json({ message: infoMessages.USER_NOT_AUTHORIZED})
   }
 }
 
