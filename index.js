@@ -1,15 +1,14 @@
 require('module-alias/register')
 const express = require('express')
 const bodyParser = require('body-parser')
-const dotenv = require('dotenv')
+require('dotenv').config()
 const fs = require('fs')
 const swaggerUi = require('swagger-ui-express')
-const meetupsRoutes = require('./routes/meetups.js')
-const authRoutes = require('./routes/auth.js')
+
+const meetupsRoutes = require('./routes/meetups')
+const authRoutes = require('./routes/auth')
 
 const swaggerDocument = JSON.parse(fs.readFileSync('./swagger/openapi.json'))
-
-dotenv.config()
 
 const app = express()
 

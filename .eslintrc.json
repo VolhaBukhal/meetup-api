@@ -16,18 +16,28 @@
     "prettier/prettier": "error",
     "no-console": "off",
     "import/prefer-default-export": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "consistent-return": "off"
   },
   "settings": {
     "import/resolver": {
       "node": {
-         "paths": [
-            "./"
-         ],
-         "extensions": [
-            ".js",
-         ]
+        "alias": {
+          "map": [
+            ["root", "."],
+            ["config", "./config/*"],
+            ["constants", "./constants/*"],
+            ["controllers", "./controllers/*"],
+            ["helpers", "./helpers/*"],
+            ["middleware", "./middleware/*"],
+            ["validation", "./validation/*"],
+            ["routs", "./routs/*"]
+          ],
+        },  
+        "extensions": [".js"]
       }
-   }
- }
+    }
+  }
 }
+
+

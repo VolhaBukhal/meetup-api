@@ -1,7 +1,7 @@
-const { pool } = require ( '@config/db')
-const { v4} = require ( 'uuid')
-const bcrypt = require ( 'bcrypt')
-const jwt = require ( 'jsonwebtoken')
+const { pool } = require('@config/db')
+const { v4 } = require('uuid')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const userExists = async (email) => {
   const data = await pool.query('SELECT * FROM users WHERE email=$1', [email])
@@ -78,6 +78,10 @@ const saveToken = async (userId, refreshToken) => {
   }
 }
 
+const deleteRefreshToken = async(refreshToken) => {
+  await pool.query('UPDATE users SET refresh_token = $1 WHERE refresh_token = $2', [null, refreshToken])
+}
+
 const findToken = async (refreshToken) => {
   const tokenData = await pool.query(
     'SELECT * FROM users WHERE refresh_token = $1',
@@ -86,12 +90,32 @@ const findToken = async (refreshToken) => {
   return tokenData
 }
 
-const refresh = async (refreshToken) => {
+const validateRefreshToken = (refreshToken) => {
+  try {
+    const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+    return userData
+  } catch{
+    return null
+  }
+}
+const validateAccessToken = (accessToken) => {
+  try {
+    const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+    return userData
+  } catch{
+    return null
+  }
+}
+
+
+const refreshTokenInDB = async (refreshToken) => {
   if (!refreshToken) {
     throw Error('User is not authorized!')
   }
 
   const userData = validateRefreshToken(refreshToken)
+
+  console.log('UserData from validateRefreshToken inside refresh: ', userData)
   const tokenFromDB = await findToken(refreshToken)
 
   if (!userData || !tokenFromDB) {
@@ -100,8 +124,8 @@ const refresh = async (refreshToken) => {
 
   const user = await findUserById(userData.id)
   const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
-    userIsExist.user_id,
-    userIsExist.role
+    user.user_id,
+    user.role
   )
   res.send({ accessToken: accessToken })
   await saveToken(user.user_id, refreshToken)
@@ -122,6 +146,7 @@ module.exports = {
   generateTokens,
   saveToken,
   findToken,
-  refresh,
-  checkTokenIsExpired
+  refreshTokenInDB,
+  checkTokenIsExpired,
+  deleteRefreshToken
 }

@@ -22,7 +22,7 @@ const authMiddleware = async (req, res, next) => {
     if (!decodedUserData) {
       throw Error('User is not authorized!')
     }
-
+    console.log('decodedUserData: ', decodedUserData)
     req.user = decodedUserData
     next()
   } catch (err) {

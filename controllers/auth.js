@@ -1,4 +1,4 @@
-const { status } = require( '@constants/status')
+const { status } = require('@constants/status')
 const {
   userExists,
   createUser,
@@ -6,7 +6,9 @@ const {
   matchPassword,
   generateTokens,
   saveToken,
-} = require( '@helpers/auth')
+  deleteRefreshToken,
+  refreshTokenInDB
+} = require('@helpers/auth')
 
 const registration = async (req, res) => {
   try {
@@ -61,6 +63,24 @@ const login = async (req, res) => {
   }
 }
 
+const logout = async(req, res) => {
+  const refreshToken = ';lasjfal';
+
+  const token = await deleteRefreshToken(refreshToken)
+  res.json(token)
+}
+
+const refresh = async (req, res, next) => {
+  try{
+    // TODO - need to save refreshToken in cookies
+    const refreshToken = 'lasf;lsf';
+    const userData = await refreshTokenInDB(refreshToken)
+    return res.json(userData)
+  } catch(err) {
+    next(err)
+  }
+}
+
 const getUsers = async (req, res) => {
   try {
     const users = await getAllUsers()
@@ -73,5 +93,7 @@ const getUsers = async (req, res) => {
 module.exports = {
   registration,
   login,
-  getUsers
+  logout,
+  refresh,
+  getUsers,
 }

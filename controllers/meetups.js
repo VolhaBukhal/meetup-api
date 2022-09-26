@@ -1,4 +1,4 @@
-const {v4 } = require ('uuid')
+const { v4 } = require('uuid')
 const { pool } = require('@config/db')
 const { status, errorMessage } = require('@constants/status')
 
@@ -131,11 +131,10 @@ const updateMeetup = async (req, res) => {
   }
 }
 
-
 module.exports = {
   getMeetups,
   createMeetup,
   getMeetupById,
   deleteMeetup,
-  updateMeetup
+  updateMeetup,
 }
