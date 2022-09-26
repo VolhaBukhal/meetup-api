@@ -74,7 +74,7 @@ const saveToken = async (userId, refreshToken) => {
       userId,
     ])
   } else {
-    console.log('there is not refresh token in db')
+    console.log('there is not refresh token in db!')
   }
 }
 
@@ -92,7 +92,7 @@ const findToken = async (refreshToken) => {
 
 const validateRefreshToken = (refreshToken) => {
   try {
-    const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+    const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
     return userData
   } catch{
     return null
@@ -100,7 +100,7 @@ const validateRefreshToken = (refreshToken) => {
 }
 const validateAccessToken = (accessToken) => {
   try {
-    const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+    const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
     return userData
   } catch{
     return null
@@ -115,7 +115,6 @@ const refreshTokenInDB = async (refreshToken) => {
 
   const userData = validateRefreshToken(refreshToken)
 
-  console.log('UserData from validateRefreshToken inside refresh: ', userData)
   const tokenFromDB = await findToken(refreshToken)
 
   if (!userData || !tokenFromDB) {
@@ -127,8 +126,8 @@ const refreshTokenInDB = async (refreshToken) => {
     user.user_id,
     user.role
   )
-  res.send({ accessToken: accessToken })
   await saveToken(user.user_id, refreshToken)
+  return { accessToken: accessToken }
 }
 
 const checkTokenIsExpired = (expireTime) => {

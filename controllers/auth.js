@@ -64,7 +64,7 @@ const login = async (req, res) => {
 }
 
 const logout = async(req, res) => {
-  const refreshToken = ';lasjfal';
+  const {refreshToken} = req.body;
 
   const token = await deleteRefreshToken(refreshToken)
   res.json(token)
@@ -72,8 +72,7 @@ const logout = async(req, res) => {
 
 const refresh = async (req, res, next) => {
   try{
-    // TODO - need to save refreshToken in cookies
-    const refreshToken = 'lasf;lsf';
+    const {refreshToken} = req.body;
     const userData = await refreshTokenInDB(refreshToken)
     return res.json(userData)
   } catch(err) {

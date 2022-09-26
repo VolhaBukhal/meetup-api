@@ -25,6 +25,7 @@ const roleMiddleware = () => (req, res, next) => {
     next()
   } catch (err) {
     console.log(err)
+    res.status(status.no_credentials).json({message: 'Jwt expired' })
   }
 }
 

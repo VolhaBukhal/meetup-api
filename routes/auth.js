@@ -15,7 +15,6 @@ const {signupStrategy, loginStrategy} = require('@config/passport')
 passport.use( 'signup', signupStrategy)
 passport.use( 'login', loginStrategy)
 
-// TODO: move logic with responses to controllers
 router.post('/registration', function (req, res, next) {
   passport.authenticate('signup', function (err, user, info) {
     if (err) {

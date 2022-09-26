@@ -50,7 +50,7 @@ const loginStrategy = new LocalStrategy(
       }  
       const validPassword = await matchPassword(password, user.password)
       if (!validPassword) {
-        return done(null, false, {message: `User with ${email} hasn't been found`});
+        return done(null, false, {message: `Invalid password!`});
       }
       const { accessToken, refreshToken } = await generateTokens( user.user_id, user.role) 
       const responseUser = {accessToken, refreshToken, user: {id: user.user_id, email: user.email, role: user.role}}
