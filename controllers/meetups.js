@@ -62,11 +62,12 @@ const getMeetups = async (req, res) => {
 
 const createMeetup = async (req, res) => {
   const id = v4()
-  const { title, description, time, place } = req.body
+  const { title, description, time, place, tags } = req.body
+  console.log('tags: ', tags)
   const { id: user_id } = req.user
   const createMeetupsQuery =
-    'INSERT INTO meetup (id_meetup, title, description, time, place, fk_user_id) values($1, $2, $3, $4, $5, $6) RETURNING *'
-  const queryValues = [id, title, description, time, place, user_id]
+    'INSERT INTO meetup (id_meetup, title, description, time, place, tags, fk_user_id) values($1, $2, $3, $4, $5, $6, $7) RETURNING *'
+  const queryValues = [id, title, description, time, place, tags, user_id]
 
   try {
     const newMeetup = await pool.query(createMeetupsQuery, queryValues)

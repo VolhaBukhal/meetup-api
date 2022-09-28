@@ -13,6 +13,7 @@ CREATE TABLE meetup
     description varchar(255),
     time timestamp,
     place varchar(64),
+    tags varchar(128)[],
     fk_user_id varchar(255),
 	FOREIGN KEY(fk_user_id) REFERENCES users(user_id)
 );
