@@ -309,7 +309,7 @@
     },
     "/auth/registration": {
       "post": {
-        "tags": ["User registration"],
+        "tags": ["User authorization"],
         "operationId": "registerUser",
         "summary": "User registration",
         "requestBody": {
@@ -351,7 +351,7 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["User login"],
+        "tags": ["User authorization"],
         "operationId": "loginUser",
         "summary": "User login",
         "requestBody": {
@@ -380,6 +380,88 @@
                       "email": "admin@admin.com",
                       "role": "USER"
                     }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["User authorization"],
+        "operationId": "logoutUser",
+        "summary": "User logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MTczMCwiZXhwIjoxNjY0NDU4MTMwfQ.N7_WEzb8MIHHl2cy3eURuKaW8EMeOYucZ_45lsGH97s"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "log out successfully"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["User authorization"],
+        "operationId": "refreshToken",
+        "summary": "User refreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MTczMCwiZXhwIjoxNjY0NDU4MTMwfQ.N7_WEzb8MIHHl2cy3eURuKaW8EMeOYucZ_45lsGH97s"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MzQ5OCwiZXhwIjoxNjY0Mzc1Mjk4fQ.YEvKtl2DcRj8dwKM6u4RJbeUYxIkkU4V4GCLHDMi5Lw"
                   }
                 }
               }
