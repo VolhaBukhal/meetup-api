@@ -5,9 +5,12 @@ import { Signup } from '@components/Login/Signup'
 import { MeetupBoard } from '@components/MeetupBoard'
 import { PAGE_ROUTES } from '@constants/routes'
 import { PageNotFound } from '@components/PageNotFound'
-import { SigninFormik } from '@components/SigninFormik'
+import {useSelector} from 'react-redux'
+import {meetupApi} from '@services/MeetupService'
 
 function App() {
+  const meetupApiReturned = meetupApi.useGetAllMeetupsQuery('')
+  console.log('meetupApiReturned: ', meetupApiReturned)
   return (
     <div className='App'>
       <Routes>
