@@ -15,7 +15,7 @@ const getMeetups = async (req, res) => {
   }
 
   if (search) {
-    getAllMeetupsQuery += ` WHERE to_tsvector(title || description || place) @@ to_tsquery('${search}')`
+    getAllMeetupsQuery += ` WHERE to_tsvector(title) || to_tsvector(description) || to_tsvector(place) @@ plainto_tsquery('${search}')`
   }
 
   if (title || place || description) {
