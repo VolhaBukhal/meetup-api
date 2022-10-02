@@ -1,7 +1,9 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import { meetupApi } from '@services/MeetupService'
+import searchReducer from '@store/reducers/searchSlice'
 
 const rootReducer = combineReducers({
+  searchReducer,
   [meetupApi.reducerPath]: meetupApi.reducer,
 })
 export const store = configureStore({

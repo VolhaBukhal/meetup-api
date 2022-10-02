@@ -12,29 +12,15 @@ import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
-import SearchIcon from '@mui/icons-material/Search'
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'
-import { Search, SearchIconWrapper, StyledInputBase } from './styled'
 import { pages, settingsAuthorized, settingsUnAuthorized } from './constants'
 import { PAGE_ROUTES } from '@constants/routes'
+import { SearchInput } from '@components/SearchInput'
 
 export const Header = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
   const [isAuthorized] = useState(false)
-  const [search, setSearch] = useState('')
-
-  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.currentTarget.value)
-    console.log('value: ', event.currentTarget.value)
-  }
-
-  const handleSearchKey = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.code === 'Enter') {
-      console.log('enter pressed.... send request with search params')
-      setSearch('')
-    }
-  }
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
@@ -145,18 +131,7 @@ export const Header = () => {
             ))}
           </Box>
 
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              value={search}
-              onChange={handleSearch}
-              onKeyPress={handleSearchKey}
-              placeholder='Search meetup…'
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
+          <SearchInput />
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title='Authorization'>

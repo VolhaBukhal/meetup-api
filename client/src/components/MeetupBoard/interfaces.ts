@@ -6,7 +6,8 @@ export interface MeetupListProps {
 }
 
 export interface CreateMeetupFormProps {
-  item?: IEditedMeetup
+  // item?: IEditedMeetup
+  item?: IMeetup
   isEdited: boolean
   closeModal: () => void
 }

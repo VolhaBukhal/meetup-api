@@ -3,18 +3,34 @@ import { useFormik } from 'formik'
 import { CreateMeetupFormProps } from '@components/MeetupBoard/interfaces'
 import { initialValues } from './constants'
 import { validationSchema } from './schema'
+import { meetupApi } from '@services/MeetupService'
 
 export const CreateMeetupForm = ({ closeModal, isEdited, item }: CreateMeetupFormProps) => {
+  const [createMeetup] = meetupApi.useCreateMeetupMutation()
+  const [updateMeetup] = meetupApi.useUpdateMeetupMutation()
+
   const formik = useFormik({
     initialValues: isEdited ? { ...item, tags: item?.tags.join(',') } : initialValues,
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      if (isEdited) {
-        console.log('send request to update meetup')
-      } else {
-        console.log('send request to create meetup')
+    onSubmit: async (values, { resetForm }) => {
+      const tagsArr = values.tags ? values.tags.split(',') : []
+      const meetupForCreate = {title: values.title || ' ',
+      description: values.description || ' ',
+      place: values.place || ' ',
+      time: values.time || ' ',
+      tags: tagsArr || ' ',}
+
+      const meetupForUpdate = {
+        ...meetupForCreate,
+        id_meetup: item?.id_meetup || '',
+        userId: item?.userId || ''
       }
-      alert(JSON.stringify(values, null, 2))
+
+      if (isEdited) {
+        await updateMeetup (meetupForUpdate)
+      } else {
+        await createMeetup(meetupForCreate)
+      }
       resetForm()
       closeModal()
     },

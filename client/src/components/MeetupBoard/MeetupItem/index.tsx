@@ -14,10 +14,13 @@ import { IMeetup } from '@interfaces/index'
 import { ModalWindow } from '@components/ModalWindow'
 import { ConfirmDialog } from '@components/MeetupBoard/CofirmDialog'
 import { CreateMeetupForm } from '@components/MeetupBoard/CreateMeetupForm'
+import { meetupApi } from '@services/MeetupService'
 
-export const MeetupItem = ({ id, title, description, place, time, tags }: IMeetup) => {
+export const MeetupItem = ({ id_meetup, title, description, place, time, tags, userId }: IMeetup) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  const [deleteMeetup] = meetupApi.useDeleteMeetupMutation()
 
   const handleOpenDelete = () => {
     setIsDeleteModalOpen(true)
@@ -32,9 +35,9 @@ export const MeetupItem = ({ id, title, description, place, time, tags }: IMeetu
     setIsEditModalOpen(false)
   }
 
-  const handleConfirmDeleteMeetup = (needToDelete: boolean) => {
+  const handleConfirmDeleteMeetup = async (needToDelete: boolean) => {
     if (needToDelete) {
-      console.log('meetup need to be deleted ')
+      await deleteMeetup(id_meetup)
     }
     setIsDeleteModalOpen(false)
   }
@@ -110,7 +113,7 @@ export const MeetupItem = ({ id, title, description, place, time, tags }: IMeetu
           <CreateMeetupForm
             closeModal={handleCloseEdit}
             isEdited={true}
-            item={{ id, title, description, place, time, tags }}
+            item={{ id_meetup, title, description, place, time, tags, userId }}
           />
         </ModalWindow>
       </CardActions>

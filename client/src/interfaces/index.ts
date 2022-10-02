@@ -1,5 +1,5 @@
 export interface IMeetup {
-  id: string
+  id_meetup: string
   title: string
   description: string
   time: string
@@ -8,4 +8,8 @@ export interface IMeetup {
   userId: string
 }
 
-export type IEditedMeetup = Omit<IMeetup, 'userId'>
+export type IEditedMeetup = Omit<IMeetup, 'userId' | 'id_meetup'>
+
+export interface ISearchInitialState {
+  search: string
+}

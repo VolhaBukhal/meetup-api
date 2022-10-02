@@ -6,7 +6,7 @@ export const MeetupList = ({ meetups, closeModal }: MeetupListProps) => {
   return (
     <Grid container spacing={4}>
       {meetups.map((item) => (
-        <Grid item key={item.id} xs={12} sm={6} md={4}>
+        <Grid item key={item.id_meetup} xs={12} sm={6} md={4}>
           <MeetupItem {...item} />
         </Grid>
       ))}

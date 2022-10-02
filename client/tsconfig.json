@@ -26,6 +26,7 @@
       "@interfaces/*": ["interfaces/*"],
       "@services/*": ["services/*"],
       "@store/*": ["store/*"],
+      "@hooks/*": ["hooks/*"],
      }
   },
   "include": ["src"]
