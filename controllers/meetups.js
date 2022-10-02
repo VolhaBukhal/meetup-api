@@ -113,21 +113,20 @@ const deleteMeetup = async (req, res) => {
 
 const updateMeetup = async (req, res) => {
   const { id } = req.params
-  const { title, description, time, place } = req.body
+  const { title, description, time, place, tags } = req.body
   const { id: user_id } = req.user
 
   const updateMeetupQuery =
-    'UPDATE meetup SET title = COALESCE($1, title), description = COALESCE($2, description), time = COALESCE($3, time), place = COALESCE($4, place), fk_user_id = COALESCE($5, fk_user_id)  WHERE id_meetup = $6 RETURNING *'
-  const updateMeetupQueryValues = [title, description, time, place, id, user_id]
+    'UPDATE meetup SET title = COALESCE($1, title), description = COALESCE($2, description), time = COALESCE($3, time), place = COALESCE($4, place), fk_user_id = COALESCE($5, fk_user_id), tags = COALESCE($6, tags)  WHERE id_meetup = $7 RETURNING *'
+  const updateMeetupQueryValues = [title, description, time, place, user_id, tags, id]
 
   try {
     const updatedMeetup = await pool.query(
       updateMeetupQuery,
       updateMeetupQueryValues
     )
-    res.status(status.no_content).json({ message: infoMessages.UPDATED_MEETUP })
+    res.status(status.success).json(updatedMeetup.rows[0])
   } catch (error) {
-    console.log(error)
     res.status(status.error).send(errorMessage)
   }
 }

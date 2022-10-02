@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 require('dotenv').config()
 const fs = require('fs')
+const cors = require('cors')
 const swaggerUi = require('swagger-ui-express')
 
 const meetupsRoutes = require('./routes/meetups')
@@ -12,6 +13,7 @@ const swaggerDocument = JSON.parse(fs.readFileSync('./swagger/openapi.json'))
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json({ extended: true }))
 app.use(bodyParser.urlencoded({ extended: true }))
 

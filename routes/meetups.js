@@ -37,7 +37,7 @@ router.delete(
   deleteMeetup
 )
 
-router.patch(
+router.put(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   meetupValidationMiddleware(updateMeetupSchema),
