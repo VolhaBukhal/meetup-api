@@ -14,7 +14,7 @@ const status = {
 
 const infoMessages = {
   USER_NOT_AUTHORIZED: 'User is not authorized!',
-  USER_NOT_FOUND: 'User hasn\'t been found!',
+  USER_NOT_FOUND: "User hasn't been found!",
   ONLY_ADMIN_ACCESS: 'Access has only admin!',
   JWT_EXPIRED: 'Jwt is expired!',
   INVALID_PASSWORD: 'Invalid password, please, try again!',
@@ -26,12 +26,12 @@ const infoMessages = {
 
 const userRoles = {
   ADMIN: 'ADMIN',
-  USER: 'USER'
+  USER: 'USER',
 }
 
 module.exports = {
   errorMessage,
   infoMessages,
   status,
-  userRoles
+  userRoles,
 }

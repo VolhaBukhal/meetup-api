@@ -78,8 +78,11 @@ const saveToken = async (userId, refreshToken) => {
   }
 }
 
-const deleteRefreshToken = async(refreshToken) => {
-  await pool.query('UPDATE users SET refresh_token = $1 WHERE refresh_token = $2', [null, refreshToken])
+const deleteRefreshToken = async (refreshToken) => {
+  await pool.query(
+    'UPDATE users SET refresh_token = $1 WHERE refresh_token = $2',
+    [null, refreshToken]
+  )
 }
 
 const findToken = async (refreshToken) => {
@@ -94,7 +97,7 @@ const validateRefreshToken = (refreshToken) => {
   try {
     const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
     return userData
-  } catch{
+  } catch {
     return null
   }
 }
@@ -102,11 +105,10 @@ const validateAccessToken = (accessToken) => {
   try {
     const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
     return userData
-  } catch{
+  } catch {
     return null
   }
 }
-
 
 const refreshTokenInDB = async (refreshToken) => {
   if (!refreshToken) {
@@ -147,5 +149,5 @@ module.exports = {
   findToken,
   refreshTokenInDB,
   checkTokenIsExpired,
-  deleteRefreshToken
+  deleteRefreshToken,
 }

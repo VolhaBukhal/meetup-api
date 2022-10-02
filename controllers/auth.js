@@ -1,28 +1,27 @@
-const { status, errorMessage , infoMessages } = require('@constants')
+const { status, errorMessage } = require('@constants')
 const {
-  userExists,
-  createUser,
   getAllUsers,
-  matchPassword,
-  generateTokens,
-  saveToken,
   deleteRefreshToken,
-  refreshTokenInDB
+  refreshTokenInDB,
 } = require('@helpers/auth')
 
-const logout = async(req, res) => {
-  const {refreshToken} = req.body;
-
+const logout = async (req, res) => {
+  const { refreshToken } = req.cookies
   const token = await deleteRefreshToken(refreshToken)
+  res.clearCookie('refreshToken')
   res.json(token)
 }
 
 const refresh = async (req, res, next) => {
-  try{
-    const {refreshToken} = req.body;
+  try {
+    const { refreshToken } = req.cookies
+    if (!refreshToken) {
+      return res.status(status.unauthorized).json({ message: 'Unauthorized!' })
+    }
+
     const userData = await refreshTokenInDB(refreshToken)
     return res.json(userData)
-  } catch(err) {
+  } catch (err) {
     next(err)
   }
 }

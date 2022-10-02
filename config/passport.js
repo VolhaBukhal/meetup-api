@@ -3,7 +3,13 @@ const JwtStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local')
 const { ExtractJwt } = require('passport-jwt')
 
-const { userExists, createUser, generateTokens, saveToken, matchPassword } = require('@helpers/auth')
+const {
+  userExists,
+  createUser,
+  generateTokens,
+  saveToken,
+  matchPassword,
+} = require('@helpers/auth')
 
 const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -17,7 +23,7 @@ const jwtStrategy = new JwtStrategy(opts, (token, done) => {
   }
 })
 
-const signupStrategy =  new LocalStrategy(
+const signupStrategy = new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password',
@@ -30,7 +36,7 @@ const signupStrategy =  new LocalStrategy(
         return done(null, false, { message: 'User is already exist!!!!!' })
       }
       const user = await createUser(email, password, req.body.role)
-      return done(null, user, {message: 'User is registered!'})
+      return done(null, user, { message: 'User is registered!' })
     } catch (error) {
       done(error)
     }
@@ -39,25 +45,34 @@ const signupStrategy =  new LocalStrategy(
 
 const loginStrategy = new LocalStrategy(
   {
-    usernameField: "email",
-    passwordField: "password",
+    usernameField: 'email',
+    passwordField: 'password',
   },
   async (email, password, done) => {
     try {
-      const user = await userExists(email);
+      const user = await userExists(email)
       if (!user) {
-        return done(null, false, {message: `User with ${email} hasn't been found`})
-      }  
+        return done(null, false, {
+          message: `User with ${email} hasn't been found`,
+        })
+      }
       const validPassword = await matchPassword(password, user.password)
       if (!validPassword) {
-        return done(null, false, {message: `Invalid password!`});
+        return done(null, false, { message: `Invalid password!` })
       }
-      const { accessToken, refreshToken } = await generateTokens( user.user_id, user.role) 
-      const responseUser = {accessToken, refreshToken, user: {id: user.user_id, email: user.email, role: user.role}}
+      const { accessToken, refreshToken } = await generateTokens(
+        user.user_id,
+        user.role
+      )
+      const responseUser = {
+        accessToken,
+        refreshToken,
+        user: { id: user.user_id, email: user.email, role: user.role },
+      }
       await saveToken(user.user_id, refreshToken)
-      return done(null, responseUser, {message: 'Success login!'} );
+      return done(null, responseUser, { message: 'Success login!' })
     } catch (error) {
-      return done(error, false);
+      return done(error, false)
     }
   }
 )
@@ -65,5 +80,5 @@ const loginStrategy = new LocalStrategy(
 module.exports = {
   jwtStrategy,
   signupStrategy,
-  loginStrategy
+  loginStrategy,
 }

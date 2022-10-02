@@ -14,7 +14,7 @@ const passport = require('passport')
 const { authMiddleware } = require('@middleware/authMiddleware')
 
 require('@config/passport')
-const {jwtStrategy} = require('@config/passport')
+const { jwtStrategy } = require('@config/passport')
 
 passport.use(jwtStrategy)
 

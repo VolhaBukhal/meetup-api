@@ -98,13 +98,9 @@ const deleteMeetup = async (req, res) => {
   try {
     const responseDB = await pool.query(deleteMeetupQuery, [id])
     if (!responseDB.rowCount) {
-      res
-        .status(status.not_found)
-        .send(`${infoMessages.NO_MEETUP_IN_DB} ${id}`)
+      res.status(status.not_found).send(`${infoMessages.NO_MEETUP_IN_DB} ${id}`)
     } else {
-      res
-        .status(status.success)
-        .send(`${id} ${infoMessages.DELETED_MEETUP}`)
+      res.status(status.success).send(`${id} ${infoMessages.DELETED_MEETUP}`)
     }
   } catch (error) {
     res.status(status.error).send(errorMessage)
@@ -118,7 +114,15 @@ const updateMeetup = async (req, res) => {
 
   const updateMeetupQuery =
     'UPDATE meetup SET title = COALESCE($1, title), description = COALESCE($2, description), time = COALESCE($3, time), place = COALESCE($4, place), fk_user_id = COALESCE($5, fk_user_id), tags = COALESCE($6, tags)  WHERE id_meetup = $7 RETURNING *'
-  const updateMeetupQueryValues = [title, description, time, place, user_id, tags, id]
+  const updateMeetupQueryValues = [
+    title,
+    description,
+    time,
+    place,
+    user_id,
+    tags,
+    id,
+  ]
 
   try {
     const updatedMeetup = await pool.query(

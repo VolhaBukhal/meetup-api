@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { status, infoMessages, userRoles} = require('@constants')
+const { status, infoMessages, userRoles } = require('@constants')
 
 const roleMiddleware = () => (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -25,7 +25,9 @@ const roleMiddleware = () => (req, res, next) => {
     next()
   } catch (err) {
     console.log(err)
-    res.status(status.no_credentials).json({message: infoMessages.JWT_EXPIRED })
+    res
+      .status(status.no_credentials)
+      .json({ message: infoMessages.JWT_EXPIRED })
   }
 }
 

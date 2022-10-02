@@ -32,12 +32,10 @@
             ["middleware", "./middleware/*"],
             ["validation", "./validation/*"],
             ["routs", "./routs/*"]
-          ],
-        },  
+          ]
+        },
         "extensions": [".js"]
       }
     }
   }
 }
-
-
