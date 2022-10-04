@@ -15,10 +15,20 @@ import { ModalWindow } from '@components/ModalWindow'
 import { ConfirmDialog } from '@components/MeetupBoard/CofirmDialog'
 import { CreateMeetupForm } from '@components/MeetupBoard/CreateMeetupForm'
 import { meetupApi } from '@services/MeetupService'
+import { useAppSelector } from '@hooks/redux.hooks'
 
-export const MeetupItem = ({ id_meetup, title, description, place, time, tags, userId }: IMeetup) => {
+export const MeetupItem = ({
+  id_meetup,
+  title,
+  description,
+  place,
+  time,
+  tags,
+  userId,
+}: IMeetup) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const { isAuthorized } = useAppSelector((store) => store.authReducer)
 
   const [deleteMeetup] = meetupApi.useDeleteMeetupMutation()
 
@@ -78,45 +88,48 @@ export const MeetupItem = ({ id_meetup, title, description, place, time, tags, u
           {localDate} - {localTime}{' '}
         </Typography>
       </CardContent>
-      <Stack direction='row' spacing={1}>
+      <Stack direction='row' spacing={1} mb={2}>
         {tags.map((item) => (
           <Chip key={item} label={item} />
         ))}
       </Stack>
-      <CardActions
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          opacity: 1,
-          transform: 'translateX(200px)',
-          transition: '0.4s',
-        }}
-      >
-        <Tooltip title='Edit meetup'>
-          <Button onClick={handleOpenEdit}>
-            <EditIcon />
-          </Button>
-        </Tooltip>
+      {isAuthorized && (
+        <CardActions
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            opacity: 1,
+            transform: 'translateX(200px)',
+            transition: '0.4s',
+          }}
+        >
+          <Tooltip title='Edit meetup'>
+            <Button onClick={handleOpenEdit}>
+              <EditIcon />
+            </Button>
+          </Tooltip>
 
-        <Tooltip title='Delete meetup'>
-          <Button onClick={handleOpenDelete}>
-            <DeleteForeverIcon />
-          </Button>
-        </Tooltip>
-        <ModalWindow isOpen={isDeleteModalOpen} closeModal={handleCloseDelete}>
-          <ConfirmDialog
-            handleConfirmModal={(needToDelete) => handleConfirmDeleteMeetup(needToDelete)}
-          />
-        </ModalWindow>
+          <Tooltip title='Delete meetup'>
+            <Button onClick={handleOpenDelete}>
+              <DeleteForeverIcon />
+            </Button>
+          </Tooltip>
 
-        <ModalWindow isOpen={isEditModalOpen} closeModal={handleCloseEdit}>
-          <CreateMeetupForm
-            closeModal={handleCloseEdit}
-            isEdited={true}
-            item={{ id_meetup, title, description, place, time, tags, userId }}
-          />
-        </ModalWindow>
-      </CardActions>
+          <ModalWindow isOpen={isDeleteModalOpen} closeModal={handleCloseDelete}>
+            <ConfirmDialog
+              handleConfirmModal={(needToDelete) => handleConfirmDeleteMeetup(needToDelete)}
+            />
+          </ModalWindow>
+
+          <ModalWindow isOpen={isEditModalOpen} closeModal={handleCloseEdit}>
+            <CreateMeetupForm
+              closeModal={handleCloseEdit}
+              isEdited={true}
+              item={{ id_meetup, title, description, place, time, tags, userId }}
+            />
+          </ModalWindow>
+        </CardActions>
+      )}
     </Card>
   )
 }

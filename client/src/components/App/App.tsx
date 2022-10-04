@@ -5,12 +5,14 @@ import { Signup } from '@components/Login/Signup'
 import { MeetupBoard } from '@components/MeetupBoard'
 import { PAGE_ROUTES } from '@constants/routes'
 import { PageNotFound } from '@components/PageNotFound'
+import { WelcomePage } from '@components/WelcomePage'
 
 function App() {
   return (
     <div className='App'>
       <Routes>
         <Route path={PAGE_ROUTES.HOME} element={<Layout />}>
+          <Route index element={<WelcomePage />} />
           <Route path={PAGE_ROUTES.LOGIN} element={<Login />} />
           <Route path={PAGE_ROUTES.SIGNUP} element={<Signup />} />
           <Route path={PAGE_ROUTES.MEETUPS} element={<MeetupBoard />} />

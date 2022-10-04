@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
 import TextField from '@mui/material/TextField'
 import Link from '@mui/material/Link'
@@ -11,25 +10,54 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
+import LoadingButton from '@mui/lab/LoadingButton'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 import { useFormik } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { PAGE_ROUTES } from '@constants/routes'
 import { validationSchema } from './schema'
+import { TOAST_TIMEOUT, UserRoles } from '@constants/index'
 import { initialValues } from './constants'
+import { authApi } from '@services/AuthServicies'
+import { SignupError } from '@interfaces/index'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export const Signup = () => {
+  const [registerUser, result] = authApi.useRegistrationMutation()
+  const { isLoading, data, error, isSuccess } = result
+
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2))
-      navigate(PAGE_ROUTES.LOGIN)
+    onSubmit: async (values) => {
+      const user = { ...values }
+      await registerUser(user)
     },
   })
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>
+    if (isSuccess) {
+      toast.success(data.message, { autoClose: TOAST_TIMEOUT })
+      timeout = setTimeout(() => {
+        navigate(PAGE_ROUTES.LOGIN)
+      }, TOAST_TIMEOUT)
+    } else {
+      if (error) {
+        const message = (error as SignupError).data.message
+        toast.error(message, { autoClose: TOAST_TIMEOUT })
+      }
+    }
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [isSuccess, error])
 
   return (
     <Container component='main' maxWidth='xs'>
@@ -86,9 +114,30 @@ export const Signup = () => {
               ),
             }}
           />
-          <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+          <Select
+            fullWidth
+            labelId='demo-simple-select-helper-label'
+            id='demo-simple-select-helper'
+            label='Role'
+            name='role'
+            value={formik.values.role}
+            onChange={formik.handleChange}
+            error={formik.touched.role && Boolean(formik.errors.role)}
+          >
+            <MenuItem value={UserRoles.USER}>{UserRoles.USER}</MenuItem>
+            <MenuItem value={UserRoles.ADMIN}>{UserRoles.ADMIN}</MenuItem>
+          </Select>
+
+          <LoadingButton
+            type='submit'
+            loading={isLoading}
+            fullWidth
+            sx={{ mt: 3, mb: 2 }}
+            variant='contained'
+          >
             Sign up
-          </Button>
+          </LoadingButton>
+
           <Grid container justifyContent='flex-end'>
             <Grid item>
               <Link href={PAGE_ROUTES.LOGIN} variant='body2'>
@@ -98,6 +147,8 @@ export const Signup = () => {
           </Grid>
         </Box>
       </Box>
+
+      <ToastContainer />
     </Container>
   )
 }

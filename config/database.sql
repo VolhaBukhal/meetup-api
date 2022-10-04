@@ -1,3 +1,5 @@
+CREATE DATABASE meetups
+
 CREATE TABLE users (
  user_id varchar(255) PRIMARY KEY,
  email varchar(128),

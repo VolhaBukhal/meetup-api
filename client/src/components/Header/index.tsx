@@ -1,4 +1,4 @@
-import { useState, MouseEvent, ChangeEvent, KeyboardEvent } from 'react'
+import { useState, useEffect, MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -13,14 +13,21 @@ import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'
+import { useAppSelector, useAppDispatch } from '@hooks/redux.hooks'
 import { pages, settingsAuthorized, settingsUnAuthorized } from './constants'
 import { PAGE_ROUTES } from '@constants/routes'
 import { SearchInput } from '@components/SearchInput'
+import { authApi } from '@services/AuthServicies'
+import { removeCredentials } from '@store/reducers/authSlice'
 
 export const Header = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
-  const [isAuthorized] = useState(false)
+  const { isAuthorized, userName } = useAppSelector((store) => store.authReducer)
+  const [logout, result] = authApi.useLogoutMutation()
+  const { isSuccess, error } = result
+
+  const dispatch = useAppDispatch()
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
@@ -36,6 +43,23 @@ export const Header = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
   }
+  const handleLogout = async (event: MouseEvent<HTMLDivElement>) => {
+    const buttonValue = event.currentTarget.textContent
+    if (buttonValue === 'Logout') {
+      await logout({})
+      dispatch(removeCredentials())
+    }
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      console.log('logout success')
+    } else {
+      if (error) {
+        console.log('error in logout')
+      }
+    }
+  }, [])
 
   const settings = isAuthorized ? settingsAuthorized : settingsUnAuthorized
 
@@ -134,9 +158,9 @@ export const Header = () => {
           <SearchInput />
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title='Authorization'>
+            <Tooltip title={isAuthorized ? userName : 'Authorization'}>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt='Remy Sharp' src='/static/images/avatar/2.jpg' />
+                <Avatar alt={userName} src='/static/images/avatar/2.jpg' />
               </IconButton>
             </Tooltip>
             <Menu
@@ -157,7 +181,7 @@ export const Header = () => {
             >
               {settings.map(({ page, path }) => (
                 <MenuItem key={page} onClick={handleCloseUserMenu} component={Link} to={path}>
-                  {page}
+                  <Typography onClick={handleLogout}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>

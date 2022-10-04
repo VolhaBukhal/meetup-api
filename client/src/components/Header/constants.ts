@@ -1,6 +1,6 @@
 import { PAGE_ROUTES } from '@constants/routes'
 
-export const pages = [{ page: 'Meetups board', path: PAGE_ROUTES.MEETUPS }]
+export const pages = [{ page: 'Board', path: PAGE_ROUTES.MEETUPS }]
 export const settingsUnAuthorized = [
   { page: 'Login', path: PAGE_ROUTES.LOGIN },
   { page: 'SignUp', path: PAGE_ROUTES.SIGNUP },

@@ -14,20 +14,22 @@ export const CreateMeetupForm = ({ closeModal, isEdited, item }: CreateMeetupFor
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       const tagsArr = values.tags ? values.tags.split(',') : []
-      const meetupForCreate = {title: values.title || ' ',
-      description: values.description || ' ',
-      place: values.place || ' ',
-      time: values.time || ' ',
-      tags: tagsArr || ' ',}
+      const meetupForCreate = {
+        title: values.title || ' ',
+        description: values.description || ' ',
+        place: values.place || ' ',
+        time: values.time || ' ',
+        tags: tagsArr || ' ',
+      }
 
       const meetupForUpdate = {
         ...meetupForCreate,
         id_meetup: item?.id_meetup || '',
-        userId: item?.userId || ''
+        userId: item?.userId || '',
       }
 
       if (isEdited) {
-        await updateMeetup (meetupForUpdate)
+        await updateMeetup(meetupForUpdate)
       } else {
         await createMeetup(meetupForCreate)
       }

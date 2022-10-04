@@ -1,4 +1,4 @@
-import { IMeetup, IEditedMeetup } from '@interfaces/index'
+import { IMeetup } from '@interfaces/index'
 
 export interface MeetupListProps {
   meetups: IMeetup[]
@@ -6,7 +6,6 @@ export interface MeetupListProps {
 }
 
 export interface CreateMeetupFormProps {
-  // item?: IEditedMeetup
   item?: IMeetup
   isEdited: boolean
   closeModal: () => void

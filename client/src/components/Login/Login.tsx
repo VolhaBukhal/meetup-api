@@ -1,10 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
 import TextField from '@mui/material/TextField'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
+import LoadingButton from '@mui/lab/LoadingButton'
 import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
@@ -18,20 +16,55 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import { useFormik } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { PAGE_ROUTES } from '@constants/routes'
+import { TOAST_TIMEOUT } from '@constants/index'
 import { validationSchema } from './schema'
 import { initialValues } from './constants'
+import { SignupError } from '@interfaces/index'
+import { authApi } from '@services/AuthServicies'
+import { useAppDispatch } from '@hooks/redux.hooks'
+import { setCredentials } from '@store/reducers/authSlice'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export const Login = () => {
+  const [login, result] = authApi.useLoginMutation()
+  const dispatch = useAppDispatch()
+
+  const { data, isSuccess, isLoading, error } = result
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2))
-      navigate(PAGE_ROUTES.MEETUPS)
+    onSubmit: async (values) => {
+      await login(values)
     },
   })
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>
+    if (isSuccess) {
+      dispatch(
+        setCredentials({
+          userName: data.user.email,
+          userId: data.user.id,
+          token: data.accessToken,
+        }),
+      )
+      toast.success(data.message, { autoClose: TOAST_TIMEOUT })
+      timeout = setTimeout(() => {
+        navigate(PAGE_ROUTES.MEETUPS)
+      }, TOAST_TIMEOUT)
+    } else {
+      if (error) {
+        const message = (error as SignupError).data.message
+        toast.error(message, { autoClose: TOAST_TIMEOUT })
+      }
+    }
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [isSuccess, error])
 
   return (
     <Container component='main' maxWidth='xs'>
@@ -88,13 +121,17 @@ export const Login = () => {
               ),
             }}
           />
-          <FormControlLabel
-            control={<Checkbox value='remember' color='primary' />}
-            label='Remember me'
-          />
-          <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
-            Sign In
-          </Button>
+          <LoadingButton
+            type='submit'
+            loading={isLoading}
+            fullWidth
+            sx={{ mt: 3, mb: 2 }}
+            variant='contained'
+          >
+            Sign in
+          </LoadingButton>
+
+          <ToastContainer />
           <Grid container justifyContent='flex-end'>
             <Grid item>
               <Link href={PAGE_ROUTES.SIGNUP} variant='body2'>

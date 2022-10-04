@@ -1,27 +1,49 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { baseUrl } from '@constants/api'
-import { IMeetup, IEditedMeetup } from '@interfaces/index'
+import {
+  IMeetup,
+  IEditedMeetup,
+  RefreshTokenData,
+  GetAllMeetupsQueryParams,
+} from '@interfaces/index'
+import { RootState } from '@store/index'
+import { setCredentials, removeCredentials } from '@store/reducers/authSlice'
 
-type Params = {
-  limit?: number
-  search?: string
+const baseQuery = fetchBaseQuery({
+  baseUrl,
+  credentials: 'include',
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).authReducer.token
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+    return headers
+  },
+})
+
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+  let result = await baseQuery(args, api, extraOptions)
+  if (result?.error?.data === 'Unauthorized') {
+    const RefreshResult = await baseQuery('/auth/refresh', api, extraOptions)
+    if (RefreshResult?.data) {
+      const user = api.getState().authReducer
+      api.dispatch(
+        setCredentials({ ...user, token: (RefreshResult.data as RefreshTokenData).accessToken }),
+      )
+      result = await baseQuery(args, api, extraOptions)
+    } else {
+      api.dispatch(removeCredentials())
+    }
+  }
+  return result
 }
 
 export const meetupApi = createApi({
   reducerPath: 'meetupApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl,
-    prepareHeaders: (headers) => {
-      headers.set(
-        'Authorization',
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDc0NjA3NSwiZXhwIjoxNjY0NzQ3ODc1fQ.y9RkZC_OdysX_XOCej4LOnimiYC7Yy2LuoRujgB2zws',
-      )
-      return headers
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Meetups'],
   endpoints: (builder) => ({
-    getAllMeetups: builder.query<IMeetup[], Params>({
+    getAllMeetups: builder.query<IMeetup[], GetAllMeetupsQueryParams>({
       query: ({ limit = 1, search }) => ({
         url: '/meetups',
         params: {
@@ -36,10 +58,6 @@ export const meetupApi = createApi({
         url: '/meetups',
         method: 'POST',
         body: meetup,
-        headers: {
-          Authorization:
-            '\'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDc0NjA3NSwiZXhwIjoxNjY0NzQ3ODc1fQ.y9RkZC_OdysX_XOCej4LOnimiYC7Yy2LuoRujgB2zws',
-        },
       }),
       invalidatesTags: ['Meetups'],
     }),
@@ -48,10 +66,6 @@ export const meetupApi = createApi({
         url: `/meetups/${meetup.id_meetup}`,
         method: 'PUT',
         body: meetup,
-        headers: {
-          Authorization:
-            '\'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDc0NjA3NSwiZXhwIjoxNjY0NzQ3ODc1fQ.y9RkZC_OdysX_XOCej4LOnimiYC7Yy2LuoRujgB2zws',
-        },
       }),
       invalidatesTags: ['Meetups'],
     }),
@@ -59,10 +73,6 @@ export const meetupApi = createApi({
       query: (id) => ({
         url: `/meetups/${id}`,
         method: 'DELETE',
-        headers: {
-          Authorization:
-            '\'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDc0NjA3NSwiZXhwIjoxNjY0NzQ3ODc1fQ.y9RkZC_OdysX_XOCej4LOnimiYC7Yy2LuoRujgB2zws',
-        },
       }),
       invalidatesTags: ['Meetups'],
     }),
