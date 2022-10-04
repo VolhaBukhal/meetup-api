@@ -8,6 +8,7 @@ const { logout, refresh, getUsers } = require('@controllers/auth')
 const { userValidationMiddleware } = require('@middleware/validationMiddleware')
 const { userSchema } = require('@validation/schemas')
 const { roleMiddleware } = require('@middleware/roleMiddleware')
+const cookie = require('cookie')
 
 const router = express.Router()
 
@@ -44,10 +45,16 @@ router.post('/login', (req, res, next) => {
     if (!user) {
       res.status(status.error).send({ message: info.message })
     } else {
-      res.cookie('refreshToken', user.refreshToken, {
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      })
+      res.setHeader(
+        'Set-Cookie',
+        cookie.serialize('token', user.refreshToken, {
+          httpOnly: true,
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+          sameSite: 'strict',
+          path: 'http://localhost:3000/',
+        })
+      )
+
       res.status(status.success).send({
         message: info.message,
         ...user,

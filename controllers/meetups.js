@@ -63,7 +63,6 @@ const getMeetups = async (req, res) => {
 const createMeetup = async (req, res) => {
   const id = v4()
   const { title, description, time, place, tags } = req.body
-  console.log('tags: ', tags)
   const { id: user_id } = req.user
   const createMeetupsQuery =
     'INSERT INTO meetup (id_meetup, title, description, time, place, tags, fk_user_id) values($1, $2, $3, $4, $5, $6, $7) RETURNING *'
@@ -80,7 +79,6 @@ const createMeetup = async (req, res) => {
 const getMeetupById = async (req, res) => {
   const { id } = req.params
   const getSingleMeetupQuery = 'SELECT * FROM meetup WHERE id_meetup = $1'
-
   try {
     const singleMeetup = await pool.query(getSingleMeetupQuery, [id])
     if (!singleMeetup.rowCount) {
