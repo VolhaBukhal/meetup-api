@@ -11,7 +11,7 @@ const devConfig = {
 }
 
 const proConfig = {
-  connectionString: process.env.HEROKU_POSTGRESQL_MAROON_URL,
+  connectionString: process.env.DATABASE_URL,
 }
 
 const pool = new Pool(
