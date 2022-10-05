@@ -8,7 +8,8 @@
     "yarn": "1.22.18"
   },
   "scripts": {
-    "start": "nodemon index.js",
+    "start:dev": "nodemon index.js",
+    "start": "node index.js",
     "lint:fix": "eslint --fix ./*.js",
     "format": "prettier -w .",
     "heroku-postbuild": "cd client && yarn install && yarn build"
