@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 require('dotenv').config()
 const fs = require('fs')
+const path = require('path')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
@@ -25,7 +26,17 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 const PORT = process.env.PORT || 5000
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')))
+}
+
+app.use(express.static(path.join(__dirname, 'client/build')))
+
 app.get('/', (req, res) => res.send('Welcome to meetups api'))
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build/index.html'))
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}...`)
