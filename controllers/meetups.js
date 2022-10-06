@@ -35,9 +35,9 @@ const getMeetups = async (req, res) => {
     }
 
     const filterArr = [
-      titleCondition ?? '',
-      placeCondition ?? '',
-      descriptionCondition ?? '',
+      titleCondition || '',
+      placeCondition || '',
+      descriptionCondition || '',
     ]
       .filter((item) => item)
       .join(' AND')
@@ -72,7 +72,7 @@ const createMeetup = async (req, res) => {
     const newMeetup = await pool.query(createMeetupsQuery, queryValues)
     res.status(status.created).json(newMeetup.rows[0])
   } catch (err) {
-    res.status(status.error).json({ message: infoMessages.WRONG_REQUEST })
+    res.status(status.error).json({ message: err })
   }
 }
 

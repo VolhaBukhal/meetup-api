@@ -2,6 +2,6 @@ export enum PAGE_ROUTES {
   HOME = '/',
   LOGIN = '/login',
   SIGNUP = '/signup',
-  MEETUPS = '/meetups',
+  MEETUPS = '/meetings',
   NOT_FOUND = '*',
 }
