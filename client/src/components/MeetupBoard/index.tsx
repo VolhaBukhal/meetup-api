@@ -15,6 +15,8 @@ export const MeetupBoard = () => {
     isLoading,
   } = meetupApi.useGetAllMeetupsQuery({ limit: 1000, search })
   const [isModalOpen, setIsModalOpen] = useState(false)
+  console.log('isError: ', isError)
+  console.log('meetups: ', meetups)
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
@@ -44,7 +46,7 @@ export const MeetupBoard = () => {
       {isError && <p>Error happened! </p>}
       {!isLoading && !isError && meetups ? (
         <MeetupList meetups={meetups} closeModal={handleOpenModal} />
-      ) : null}
+      ) : <Typography>No meetups in database</Typography>}
       <ModalWindow isOpen={isModalOpen} closeModal={handleCloseModal}>
         <CreateMeetupForm closeModal={handleCloseModal} isEdited={false} />
       </ModalWindow>
