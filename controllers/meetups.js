@@ -56,7 +56,7 @@ const getMeetups = async (req, res) => {
     }
     return res.json(meetups.rows)
   } catch (error) {
-    res.status(status.error).send(errorMessage)
+    res.status(status.error).send(error)
   }
 }
 
