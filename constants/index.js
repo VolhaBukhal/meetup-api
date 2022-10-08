@@ -29,9 +29,15 @@ const userRoles = {
   USER: 'USER',
 }
 
+const callbackURL =
+  process.env.NODE_ENV === 'production'
+    ? process.env.GOOGLE_CALLBACK_URL
+    : `http://localhost:5000${process.env.GOOGLE_CALLBACK_URL}`
+
 module.exports = {
   errorMessage,
   infoMessages,
   status,
   userRoles,
+  callbackURL,
 }

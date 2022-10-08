@@ -6,7 +6,9 @@ const fs = require('fs')
 const path = require('path')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
+const passport = require('passport')
 
 const meetupsRoutes = require('./routes/meetups')
 const authRoutes = require('./routes/auth')
@@ -19,6 +21,18 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(bodyParser.json({ extended: true }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use(
+  session({
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production' ? 'true' : 'auto',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    },
+    resave: false,
+    saveUninitialized: false,
+  })
+)
+app.use(passport.session())
 
 app.use('/meetups', meetupsRoutes)
 app.use('/auth', authRoutes)

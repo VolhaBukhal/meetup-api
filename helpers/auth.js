@@ -2,6 +2,7 @@ const { pool } = require('@config/db')
 const { v4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const {userRoles} = require('@constants')
 
 const userExists = async (email) => {
   const data = await pool.query('SELECT * FROM users WHERE email=$1', [email])
@@ -16,13 +17,21 @@ const findUserById = async (id) => {
   if (data.rowCount == 0) return false
   return data.rows[0]
 }
+const findUserByGoogleId = async (googleId) => {
+  const data = await pool.query(
+        'SELECT * FROM users WHERE google_id=$1',
+        [googleId]
+  )
+  if (data.rowCount == 0) return false
+  return data.rows[0]
+}
 
 const createUser = async (email, password, role) => {
   const id = v4()
   const salt = await bcrypt.genSalt(10)
   const hash = await bcrypt.hash(password, salt)
 
-  const userRole = role ?? 'USER'
+  const userRole = role || 'USER'
 
   const data = await pool.query(
     'INSERT INTO users(user_id, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -33,6 +42,21 @@ const createUser = async (email, password, role) => {
     return false
   }
   return data.rows[0]
+}
+
+const createUserFromGoogle = async(displayName, googleId) => {
+  const id = v4()
+  const userRole = userRoles.USER
+  const data = await pool.query(
+    'INSERT INTO users(user_id, email, role, google_id) VALUES ($1, $2, $3, $4) RETURNING *',
+    [id, displayName, userRole, googleId]
+  )
+
+  if (data.rowCount == 0) {
+    return false
+  }
+  return data.rows[0]
+
 }
 
 const getAllUsers = async () => {
@@ -141,7 +165,9 @@ const checkTokenIsExpired = (expireTime) => {
 module.exports = {
   userExists,
   findUserById,
+  findUserByGoogleId,
   createUser,
+  createUserFromGoogle,
   getAllUsers,
   matchPassword,
   generateTokens,

@@ -5,7 +5,8 @@ CREATE TABLE users (
  email varchar(128),
  password varchar(128),
  role varchar(128),
- refresh_token varchar(255)
+ refresh_token varchar(255),
+ google_id varchar(255),
 );
 
 CREATE TABLE meetup 

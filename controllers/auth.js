@@ -40,8 +40,17 @@ const getUsers = async (req, res) => {
   }
 }
 
+const googleLogin = async (req, res) => {
+  if (req.user) {
+    res.status(status.success).send(req.user)
+  } else {
+    res.status(status.unauthorized).json({ message: res.status })
+  }
+}
+
 module.exports = {
   logout,
   refresh,
   getUsers,
+  googleLogin,
 }

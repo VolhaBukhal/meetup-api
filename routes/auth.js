@@ -4,7 +4,7 @@ require('@config/passport')
 const { userRoles } = require('@constants')
 
 const { status } = require('@constants')
-const { logout, refresh, getUsers } = require('@controllers/auth')
+const { logout, refresh, getUsers, googleLogin } = require('@controllers/auth')
 const { userValidationMiddleware } = require('@middleware/validationMiddleware')
 const { userSchema } = require('@validation/schemas')
 const { roleMiddleware } = require('@middleware/roleMiddleware')
@@ -12,10 +12,15 @@ const cookie = require('cookie')
 
 const router = express.Router()
 
-const { signupStrategy, loginStrategy } = require('@config/passport')
+const {
+  signupStrategy,
+  loginStrategy,
+  googleStrategy,
+} = require('@config/passport')
 
 passport.use('signup', signupStrategy)
 passport.use('login', loginStrategy)
+passport.use('google', googleStrategy)
 
 router.post(
   '/registration',
@@ -69,4 +74,11 @@ router.get('/refresh', refresh)
 
 router.get('/users', roleMiddleware(userRoles.ADMIN), getUsers)
 
+router.get('/google', passport.authenticate('google', { scope: ['profile'] }))
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: true }),
+  googleLogin
+)
 module.exports = router

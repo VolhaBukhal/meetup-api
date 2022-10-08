@@ -1,4 +1,5 @@
 const passport = require('passport')
+const GoogleStrategy = require('passport-google-oauth20').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local')
 const { ExtractJwt } = require('passport-jwt')
@@ -6,10 +7,13 @@ const { ExtractJwt } = require('passport-jwt')
 const {
   userExists,
   createUser,
+  createUserFromGoogle,
   generateTokens,
   saveToken,
   matchPassword,
+  findUserByGoogleId,
 } = require('@helpers/auth')
+const { callbackURL } = require('@constants')
 
 const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -77,8 +81,42 @@ const loginStrategy = new LocalStrategy(
   }
 )
 
+const googleStrategy = new GoogleStrategy(
+  {
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL,
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    let user = {}
+    try {
+      const currentUser = await findUserByGoogleId(profile.id)
+      if (!currentUser) {
+        await createUserFromGoogle(profile.displayName, profile.id)
+        user = await findUserByGoogleId(profile.id)
+      } else {
+        user = currentUser
+      }
+      done(null, user)
+    } catch (error) {
+      done(error)
+    }
+  }
+)
+
+passport.serializeUser((user, done) => {
+  // loads into req.session.passport.user
+  done(null, user)
+})
+
+passport.deserializeUser((user, done) => {
+  // loads into req.user
+  done(null, user)
+})
+
 module.exports = {
   jwtStrategy,
   signupStrategy,
   loginStrategy,
+  googleStrategy,
 }
