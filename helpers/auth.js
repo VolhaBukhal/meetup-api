@@ -44,12 +44,12 @@ const createUser = async (email, password, role) => {
   return data.rows[0]
 }
 
-const createUserFromGoogle = async(displayName, googleId) => {
+const createUserFromGoogle = async(email, googleId, refreshToken) => {
   const id = v4()
   const userRole = userRoles.USER
   const data = await pool.query(
-    'INSERT INTO users(user_id, email, role, google_id) VALUES ($1, $2, $3, $4) RETURNING *',
-    [id, displayName, userRole, googleId]
+    'INSERT INTO users(user_id, email, role, google_id, refresh_token) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [id, email, userRole, googleId, refreshToken]
   )
 
   if (data.rowCount == 0) {

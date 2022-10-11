@@ -74,11 +74,22 @@ router.get('/refresh', refresh)
 
 router.get('/users', roleMiddleware(userRoles.ADMIN), getUsers)
 
-router.get('/google', passport.authenticate('google', { scope: ['profile'] }))
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+)
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: true }),
+  passport.authenticate('google', {
+    session: true,
+    failureRedirect: 'http://localhost:3000',
+  }),
   googleLogin
 )
+
+router.get('/getuser', (req, res) => {
+  res.send(req.user)
+})
+
 module.exports = router

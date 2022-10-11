@@ -6,16 +6,29 @@ const {
 } = require('@helpers/auth')
 const cookie = require('cookie')
 
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   const { token: refreshToken } = cookie.parse(req.headers.cookie || '')
-  const token = await deleteRefreshToken(refreshToken)
-  res.setHeader(
-    'Set-Cookie',
-    cookie.serialize('token', '', {
-      expires: new Date(0),
+  const googleCookie = cookie.parse(req.headers.cookie || '')
+
+  if (refreshToken) {
+    const token = await deleteRefreshToken(refreshToken)
+    res.setHeader(
+      'Set-Cookie',
+      cookie.serialize('token', '', {
+        expires: new Date(0),
+      })
+    )
+    res.json(token)
+  } else if (googleCookie) {
+    res.clearCookie('connect.sid', { path: '/' }).status(200).send('Ok')
+  } else {
+    req.logout((err) => {
+      if (err) {
+        return next(err)
+      }
+      res.redirect('/')
     })
-  )
-  res.json(token)
+  }
 }
 
 const refresh = async (req, res, next) => {
@@ -42,7 +55,7 @@ const getUsers = async (req, res) => {
 
 const googleLogin = async (req, res) => {
   if (req.user) {
-    res.status(status.success).send(req.user)
+    res.redirect('http://localhost:3000/meetings')
   } else {
     res.status(status.unauthorized).json({ message: res.status })
   }

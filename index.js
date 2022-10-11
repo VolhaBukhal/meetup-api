@@ -17,7 +17,14 @@ const swaggerDocument = JSON.parse(fs.readFileSync('./swagger/openapi.json'))
 
 const app = express()
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
+app.use(
+  cors({
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: 'http://localhost:3000',
+  })
+)
+
 app.use(bodyParser.json({ extended: true }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
@@ -32,6 +39,7 @@ app.use(
     saveUninitialized: false,
   })
 )
+app.use(passport.initialize())
 app.use(passport.session())
 
 app.use('/meetups', meetupsRoutes)
@@ -48,9 +56,9 @@ app.use(express.static(path.join(__dirname, 'client/build')))
 
 app.get('/', (req, res) => res.send('Welcome to meetups api'))
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build/index.html'))
-})
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'client/build/index.html'))
+// })
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}...`)

@@ -11,7 +11,6 @@ const {
   generateTokens,
   saveToken,
   matchPassword,
-  findUserByGoogleId,
 } = require('@helpers/auth')
 const { callbackURL } = require('@constants')
 
@@ -81,21 +80,58 @@ const loginStrategy = new LocalStrategy(
   }
 )
 
+// const googleStrategy = new GoogleStrategy(
+//   {
+//     clientID: process.env.CLIENT_ID,
+//     clientSecret: process.env.CLIENT_SECRET,
+//     callbackURL,
+//   },
+//   async (accessToken, refreshToken, profile, email, done) => {
+//     console.log('email from google: ', email)
+//     console.log('profile from google: ', profile)
+//     let user = {}
+//     try {
+//       const currentUser = await findUserByGoogleId(profile.id)
+//       if (!currentUser) {
+//         await createUserFromGoogle(profile.displayName, profile.id)
+//         user = await findUserByGoogleId(profile.id)
+//       } else {
+//         user = { ...currentUser, accessToken }
+//       }
+//       done(null, user)
+//     } catch (error) {
+//       done(error)
+//     }
+//   }
+// )
 const googleStrategy = new GoogleStrategy(
   {
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL,
   },
-  async (accessToken, refreshToken, profile, done) => {
+  async (accessToken, refreshToken, profile, email, done) => {
     let user = {}
     try {
-      const currentUser = await findUserByGoogleId(profile.id)
+      const currentUser = await userExists(email._json.email)
       if (!currentUser) {
-        await createUserFromGoogle(profile.displayName, profile.id)
-        user = await findUserByGoogleId(profile.id)
+        await createUserFromGoogle(
+          email._json.email,
+          email._json.sub,
+          refreshToken
+        )
+        const userFromDB = await userExists(email._json.email)
+        user = {
+          ...userFromDB,
+          accessToken,
+          refresh_token: null,
+        }
       } else {
-        user = currentUser
+        user = {
+          ...currentUser,
+          accessToken,
+          refresh_token: null,
+        }
       }
       done(null, user)
     } catch (error) {

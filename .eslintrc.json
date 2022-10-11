@@ -17,7 +17,8 @@
     "no-console": "off",
     "import/prefer-default-export": "off",
     "import/extensions": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-underscore-dangle": "off"
   },
   "settings": {
     "import/resolver": {
