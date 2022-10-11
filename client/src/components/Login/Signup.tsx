@@ -18,8 +18,9 @@ import Select from '@mui/material/Select'
 import { useFormik } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { PAGE_ROUTES } from '@constants/routes'
-import { validationSchema } from './schema'
+import { GoogleAuth } from '@components/Login/GoogleAuth'
 import { TOAST_TIMEOUT, UserRoles } from '@constants/index'
+import { validationSchema } from './schema'
 import { initialValues } from './constants'
 import { authApi } from '@services/AuthServicies'
 import { SignupError } from '@interfaces/index'
@@ -32,6 +33,7 @@ export const Signup = () => {
 
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
+
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -137,8 +139,8 @@ export const Signup = () => {
           >
             Sign up
           </LoadingButton>
-
-          <Grid container justifyContent='flex-end'>
+          <GoogleAuth label='Sign up' />
+          <Grid container justifyContent='flex-end' mt={1}>
             <Grid item>
               <Link href={PAGE_ROUTES.LOGIN} variant='body2'>
                 Already have an account? Login

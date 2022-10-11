@@ -34,5 +34,10 @@ export const authApi = createApi({
         credentials: 'include',
       }),
     }),
+    getUser: builder.query({
+      query: () => ({
+        url: '/auth/getuser',
+      }),
+    }),
   }),
 })

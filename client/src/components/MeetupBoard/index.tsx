@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Container, Typography } from '@mui/material'
 import { MeetupList } from './MeetupList'
 import { ModalWindow } from '@components/ModalWindow'
 import { CreateMeetupForm } from '@components/MeetupBoard/CreateMeetupForm'
 import { Spinner } from '@components/Spinner'
 import { meetupApi } from '@services/MeetupService'
-import { useAppSelector } from 'hooks/redux.hooks'
+import { authApi } from '@services/AuthServicies'
+import { setCredentials } from '@store/reducers/authSlice'
+import { useAppSelector, useAppDispatch } from 'hooks/redux.hooks'
 
 export const MeetupBoard = () => {
   const { search } = useAppSelector((state) => state.searchReducer)
@@ -14,9 +16,24 @@ export const MeetupBoard = () => {
     isError,
     isLoading,
   } = meetupApi.useGetAllMeetupsQuery({ limit: 1000, search })
+
+  const { data: userData } = authApi.useGetUserQuery('')
+  console.log('userData: ', userData)
+
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (userData) {
+      const user = {
+        userId: userData.user_id,
+        userName: userData.email,
+        token: userData.accessToken,
+      }
+      dispatch(setCredentials(user))
+    }
+  }, [userData])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
-  console.log('isError: ', isError)
-  console.log('meetups: ', meetups)
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
@@ -46,7 +63,9 @@ export const MeetupBoard = () => {
       {isError && <p>Error happened! </p>}
       {!isLoading && !isError && meetups ? (
         <MeetupList meetups={meetups} closeModal={handleOpenModal} />
-      ) : <Typography>No meetups in database</Typography>}
+      ) : (
+        <Typography>No meetups in database</Typography>
+      )}
       <ModalWindow isOpen={isModalOpen} closeModal={handleCloseModal}>
         <CreateMeetupForm closeModal={handleCloseModal} isEdited={false} />
       </ModalWindow>

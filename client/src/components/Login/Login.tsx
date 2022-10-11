@@ -24,6 +24,7 @@ import { authApi } from '@services/AuthServicies'
 import { useAppDispatch } from '@hooks/redux.hooks'
 import { setCredentials } from '@store/reducers/authSlice'
 import { ToastContainer, toast } from 'react-toastify'
+import { GoogleAuth } from '@components/Login/GoogleAuth'
 import 'react-toastify/dist/ReactToastify.css'
 
 export const Login = () => {
@@ -130,6 +131,7 @@ export const Login = () => {
           >
             Sign in
           </LoadingButton>
+          <GoogleAuth label='Login' />
 
           <ToastContainer />
           <Grid container justifyContent='flex-end'>
