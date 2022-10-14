@@ -3,14 +3,14 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local')
 const { ExtractJwt } = require('passport-jwt')
+const authService = require('@services/authService')
+const { User } = require('@models/models')
 
 const {
   userExists,
-  createUser,
+  // createUser,
   createUserFromGoogle,
   generateTokens,
-  saveToken,
-  matchPassword,
 } = require('@helpers/auth')
 const { callbackURL } = require('@constants')
 
@@ -34,14 +34,17 @@ const signupStrategy = new LocalStrategy(
   },
   async (req, email, password, done) => {
     try {
-      const userIsExists = await userExists(email)
-      if (userIsExists) {
-        return done(null, false, { message: 'User is already exist!!!!!' })
+      const userFromDB = await authService.findUser(email)
+      if (userFromDB) {
+        return done(null, userFromDB, { message: 'User is already exist!' })
       }
-      const user = await createUser(email, password, req.body.role)
+
+      const user = await authService.createUser(email, password, req.body.role)
+      console.log('created user: ', user)
       return done(null, user, { message: 'User is registered!' })
-    } catch (error) {
-      done(error)
+    } catch (err) {
+      console.log('error in authUser: ', err)
+      done(err)
     }
   }
 )
@@ -50,32 +53,39 @@ const loginStrategy = new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password',
+    passReqToCallback: true,
   },
-  async (email, password, done) => {
+  async (req, email, password, done) => {
     try {
-      const user = await userExists(email)
+      const user = await authService.findUser(email)
+      console.log('user from loginStrategy: ', user)
       if (!user) {
+        req.authError = `User with ${email} hasn't been found`
         return done(null, false, {
           message: `User with ${email} hasn't been found`,
         })
       }
-      const validPassword = await matchPassword(password, user.password)
+      const validPassword = await authService.matchPassword(
+        password,
+        user.password
+      )
+      console.log('ValidPassword: ', validPassword)
       if (!validPassword) {
-        return done(null, false, { message: `Invalid password!` })
+        return done(req.hxr, false, { message: `Invalid password!` })
       }
       const { accessToken, refreshToken } = await generateTokens(
-        user.user_id,
+        user.id,
         user.role
       )
       const responseUser = {
         accessToken,
         refreshToken,
-        user: { id: user.user_id, email: user.email, role: user.role },
+        user: { id: user.id, email: user.email, role: user.role },
       }
-      await saveToken(user.user_id, refreshToken)
-      return done(null, responseUser, { message: 'Success login!' })
+      await authService.saveToken(user.id, refreshToken)
+      done(null, responseUser, { message: 'Success login!' })
     } catch (error) {
-      return done(error, false)
+      done(error)
     }
   }
 )

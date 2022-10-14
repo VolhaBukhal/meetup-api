@@ -2,7 +2,7 @@ const { pool } = require('@config/db')
 const { v4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const {userRoles} = require('@constants')
+const { userRoles } = require('@constants')
 
 const userExists = async (email) => {
   const data = await pool.query('SELECT * FROM users WHERE email=$1', [email])
@@ -18,10 +18,9 @@ const findUserById = async (id) => {
   return data.rows[0]
 }
 const findUserByGoogleId = async (googleId) => {
-  const data = await pool.query(
-        'SELECT * FROM users WHERE google_id=$1',
-        [googleId]
-  )
+  const data = await pool.query('SELECT * FROM users WHERE google_id=$1', [
+    googleId,
+  ])
   if (data.rowCount == 0) return false
   return data.rows[0]
 }
@@ -44,7 +43,7 @@ const createUser = async (email, password, role) => {
   return data.rows[0]
 }
 
-const createUserFromGoogle = async(email, googleId, refreshToken) => {
+const createUserFromGoogle = async (email, googleId, refreshToken) => {
   const id = v4()
   const userRole = userRoles.USER
   const data = await pool.query(
@@ -56,7 +55,6 @@ const createUserFromGoogle = async(email, googleId, refreshToken) => {
     return false
   }
   return data.rows[0]
-
 }
 
 const getAllUsers = async () => {
@@ -121,46 +119,31 @@ const validateRefreshToken = (refreshToken) => {
   try {
     const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
     return userData
-  } catch {
+  } catch (err) {
     return null
   }
 }
-const validateAccessToken = (accessToken) => {
-  try {
-    const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
-    return userData
-  } catch {
-    return null
-  }
-}
+// const refreshTokenInDB = async (refreshToken) => {
+//   if (!refreshToken) {
+//     throw Error('User is not authorized!')
+//   }
 
-const refreshTokenInDB = async (refreshToken) => {
-  if (!refreshToken) {
-    throw Error('User is not authorized!')
-  }
+//   const userData = validateRefreshToken(refreshToken)
 
-  const userData = validateRefreshToken(refreshToken)
+//   const tokenFromDB = await findToken(refreshToken)
 
-  const tokenFromDB = await findToken(refreshToken)
+//   if (!userData || !tokenFromDB) {
+//     throw Error('User is not authorized')
+//   }
 
-  if (!userData || !tokenFromDB) {
-    throw Error('User is not authorized')
-  }
-
-  const user = await findUserById(userData.id)
-  const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
-    user.user_id,
-    user.role
-  )
-  await saveToken(user.user_id, refreshToken)
-  return { accessToken: accessToken }
-}
-
-const checkTokenIsExpired = (expireTime) => {
-  if (Date.now() >= expireTime * 1000) {
-    return false
-  }
-}
+//   const user = await findUserById(userData.id)
+//   const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
+//     user.user_id,
+//     user.role
+//   )
+//   await saveToken(user.user_id, refreshToken)
+//   return { accessToken: accessToken }
+// }
 
 module.exports = {
   userExists,
@@ -173,7 +156,6 @@ module.exports = {
   generateTokens,
   saveToken,
   findToken,
-  refreshTokenInDB,
-  checkTokenIsExpired,
+  validateRefreshToken,
   deleteRefreshToken,
 }

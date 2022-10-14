@@ -9,6 +9,9 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const passport = require('passport')
+const models = require('@models/models')
+const flash = require('connect-flash')
+const sequelize = require('./config/db')
 
 const meetupsRoutes = require('./routes/meetups')
 const authRoutes = require('./routes/auth')
@@ -41,6 +44,7 @@ app.use(
 )
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(flash())
 
 app.use('/meetups', meetupsRoutes)
 app.use('/auth', authRoutes)
@@ -56,10 +60,17 @@ app.use(express.static(path.join(__dirname, 'client/build')))
 
 app.get('/', (req, res) => res.send('Welcome to meetups api'))
 
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'client/build/index.html'))
-// })
+const start = async () => {
+  try {
+    await sequelize.authenticate()
+    await sequelize.sync()
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}...`)
-})
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}...`)
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+start()

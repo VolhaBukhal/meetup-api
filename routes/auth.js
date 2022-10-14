@@ -4,13 +4,14 @@ require('@config/passport')
 const { userRoles } = require('@constants')
 
 const { status } = require('@constants')
-const { logout, refresh, getUsers, googleLogin } = require('@controllers/auth')
+const { googleLogin } = require('@controllers/auth')
 const { userValidationMiddleware } = require('@middleware/validationMiddleware')
 const { userSchema } = require('@validation/schemas')
 const { roleMiddleware } = require('@middleware/roleMiddleware')
 const cookie = require('cookie')
 
 const router = express.Router()
+const authController = require('@controllers/authController')
 
 const {
   signupStrategy,
@@ -25,54 +26,45 @@ passport.use('google', googleStrategy)
 router.post(
   '/registration',
   userValidationMiddleware(userSchema),
-  (req, res, next) => {
-    passport.authenticate('signup', (err, user, info) => {
+  passport.authenticate('signup', { session: false }),
+  authController.registration
+)
+
+router.post('/login', (req, res, next) => {
+  passport.authenticate(
+    'login',
+    (err, user, info) => {
       if (err) {
         return next(err)
       }
       if (!user) {
         res.status(status.error).send({ message: info.message })
       } else {
+        res.setHeader(
+          'Set-Cookie',
+          cookie.serialize('token', user.refreshToken, {
+            httpOnly: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            sameSite: 'strict',
+            path: 'http://localhost:3000/',
+          })
+        )
+
         res.status(status.success).send({
           message: info.message,
-          user,
+          ...user,
         })
       }
-    })(req, res, next)
-  }
-)
-
-router.post('/login', (req, res, next) => {
-  passport.authenticate('login', (err, user, info) => {
-    if (err) {
-      return next(err)
-    }
-    if (!user) {
-      res.status(status.error).send({ message: info.message })
-    } else {
-      res.setHeader(
-        'Set-Cookie',
-        cookie.serialize('token', user.refreshToken, {
-          httpOnly: true,
-          maxAge: 30 * 24 * 60 * 60 * 1000,
-          sameSite: 'strict',
-          path: 'http://localhost:3000/',
-        })
-      )
-
-      res.status(status.success).send({
-        message: info.message,
-        ...user,
-      })
-    }
-  })(req, res, next)
+    },
+    { session: false }
+  )(req, res, next)
 })
 
-router.post('/logout', logout)
+router.post('/logout', authController.logout)
 
-router.get('/refresh', refresh)
+router.get('/refresh', authController.refresh)
 
-router.get('/users', roleMiddleware(userRoles.ADMIN), getUsers)
+router.get('/users', roleMiddleware(userRoles.ADMIN), authController.getUsers)
 
 router.get(
   '/google',
