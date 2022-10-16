@@ -3,12 +3,9 @@ const passport = require('passport')
 require('@config/passport')
 const { userRoles } = require('@constants')
 
-const { status } = require('@constants')
-const { googleLogin } = require('@controllers/auth')
 const { userValidationMiddleware } = require('@middleware/validationMiddleware')
 const { userSchema } = require('@validation/schemas')
 const { roleMiddleware } = require('@middleware/roleMiddleware')
-const cookie = require('cookie')
 
 const router = express.Router()
 const authController = require('@controllers/authController')
@@ -30,35 +27,11 @@ router.post(
   authController.registration
 )
 
-router.post('/login', (req, res, next) => {
-  passport.authenticate(
-    'login',
-    (err, user, info) => {
-      if (err) {
-        return next(err)
-      }
-      if (!user) {
-        res.status(status.error).send({ message: info.message })
-      } else {
-        res.setHeader(
-          'Set-Cookie',
-          cookie.serialize('token', user.refreshToken, {
-            httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-            sameSite: 'strict',
-            path: 'http://localhost:3000/',
-          })
-        )
-
-        res.status(status.success).send({
-          message: info.message,
-          ...user,
-        })
-      }
-    },
-    { session: false }
-  )(req, res, next)
-})
+router.post(
+  '/login',
+  passport.authenticate('login', { session: false }),
+  authController.login
+)
 
 router.post('/logout', authController.logout)
 
@@ -77,7 +50,7 @@ router.get(
     session: true,
     failureRedirect: 'http://localhost:3000',
   }),
-  googleLogin
+  authController.googleLogin
 )
 
 router.get('/getuser', (req, res) => {

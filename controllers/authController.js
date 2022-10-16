@@ -11,29 +11,24 @@ class AuthController {
   }
 
   async login(req, res) {
-    const { user } = req
-    if (!user) {
-      res.status(status.error).send({ message: req.authInfo.message })
-    } else {
-      res.setHeader(
+    if (req.authInfo.message !== 'Success login!') {
+      return res.status(status.error).send({ message: req.authInfo.message })
+    }
+    res
+      .setHeader(
         'Set-Cookie',
-        cookie.serialize('token', user.refreshToken, {
+        cookie.serialize('token', req.user.refreshToken, {
           httpOnly: true,
           maxAge: 30 * 24 * 60 * 60 * 1000,
           sameSite: 'strict',
-          path: 'http://localhost:3000/',
+          path: 'http://localhost:5000/',
         })
       )
-
-      res.status(status.success).send({
+      .status(status.success)
+      .send({
         message: req.authInfo.message,
-        ...user,
+        ...req.user,
       })
-    }
-    res.status(status.success).json({
-      message: req.authInfo.message,
-      user: req.user,
-    })
   }
 
   async logout(req, res, next) {
@@ -77,7 +72,14 @@ class AuthController {
     }
   }
 
-  // async googleLogin(req, res) {}
+  async googleLogin(req, res) {
+    if (req.user) {
+      res.redirect('http://localhost:3000/meetings')
+      // res.redirect('http://localhost:5000')
+    } else {
+      res.status(status.unauthorized).json({ message: res.status })
+    }
+  }
 
   async getUsers(req, res) {
     try {
@@ -92,29 +94,3 @@ class AuthController {
 }
 
 module.exports = new AuthController()
-
-// router.post('/login', (req, res, next) => {
-//   passport.authenticate('login', (err, user, info) => {
-//     if (err) {
-//       return next(err)
-//     }
-//     if (!user) {
-//       res.status(status.error).send({ message: info.message })
-//     } else {
-//       res.setHeader(
-//         'Set-Cookie',
-//         cookie.serialize('token', user.refreshToken, {
-//           httpOnly: true,
-//           maxAge: 30 * 24 * 60 * 60 * 1000,
-//           sameSite: 'strict',
-//           path: 'http://localhost:3000/',
-//         })
-//       )
-
-//       res.status(status.success).send({
-//         message: info.message,
-//         ...user,
-//       })
-//     }
-//   })(req, res, next)
-// })

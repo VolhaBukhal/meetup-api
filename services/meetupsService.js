@@ -32,8 +32,12 @@ class MeetupsService {
   }
 
   async update(params, meetupId) {
-    const item = Meetup.update({ ...params }, { where: { id: meetupId } })
-    return item
+    try {
+      const item = Meetup.update({ ...params }, { where: { id: meetupId } })
+      return item
+    } catch (err) {
+      console.log(err)
+    }
   }
 }
 

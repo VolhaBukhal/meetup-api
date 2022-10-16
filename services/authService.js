@@ -1,6 +1,7 @@
 const { User } = require('@models/models')
 const bcrypt = require('bcrypt')
 const { validateRefreshToken, generateTokens } = require('@helpers/auth')
+const { userRoles } = require('@constants')
 
 class AuthService {
   async findUser(email) {
@@ -15,6 +16,39 @@ class AuthService {
     const userRole = role || 'USER'
     const user = await User.create({ email, password: hash, role: userRole })
     return user
+  }
+
+  async createUserFromGoogle(email) {
+    const userRole = userRoles.USER
+
+    try {
+      const user = await User.create({
+        email,
+        role: userRole,
+      })
+
+      const userFromDB = await this.findUser(email)
+
+      const { accessToken, refreshToken } = await generateTokens(
+        userFromDB.id,
+        userFromDB.role
+      )
+
+      const responseUser = {
+        accessToken,
+        refreshToken,
+        user: {
+          id: userFromDB.id,
+          email: userFromDB.email,
+          role: userFromDB.role,
+        },
+      }
+      await this.saveToken(user.id, refreshToken)
+
+      return responseUser
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   async getAllUsers() {
@@ -44,7 +78,6 @@ class AuthService {
     const tokenFromDB = await User.findOne({
       where: { refresh_token: refreshToken },
     })
-    console.log('tokenFromDB: ', tokenFromDB)
 
     if (!userData || !tokenFromDB) {
       throw Error('User is not authorized')

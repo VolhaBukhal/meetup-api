@@ -4,14 +4,8 @@ const JwtStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local')
 const { ExtractJwt } = require('passport-jwt')
 const authService = require('@services/authService')
-const { User } = require('@models/models')
 
-const {
-  userExists,
-  // createUser,
-  createUserFromGoogle,
-  generateTokens,
-} = require('@helpers/auth')
+const { generateTokens } = require('@helpers/auth')
 const { callbackURL } = require('@constants')
 
 const opts = {}
@@ -40,7 +34,6 @@ const signupStrategy = new LocalStrategy(
       }
 
       const user = await authService.createUser(email, password, req.body.role)
-      console.log('created user: ', user)
       return done(null, user, { message: 'User is registered!' })
     } catch (err) {
       console.log('error in authUser: ', err)
@@ -56,95 +49,69 @@ const loginStrategy = new LocalStrategy(
     passReqToCallback: true,
   },
   async (req, email, password, done) => {
+    let user = {}
     try {
-      const user = await authService.findUser(email)
-      console.log('user from loginStrategy: ', user)
+      user = await authService.findUser(email)
       if (!user) {
-        req.authError = `User with ${email} hasn't been found`
-        return done(null, false, {
-          message: `User with ${email} hasn't been found`,
-        })
+        return done(null, false)
       }
       const validPassword = await authService.matchPassword(
         password,
         user.password
       )
-      console.log('ValidPassword: ', validPassword)
       if (!validPassword) {
-        return done(req.hxr, false, { message: `Invalid password!` })
+        return done(null, user, { message: `Invalid password!` })
       }
       const { accessToken, refreshToken } = await generateTokens(
         user.id,
         user.role
       )
-      const responseUser = {
+      user = {
         accessToken,
         refreshToken,
         user: { id: user.id, email: user.email, role: user.role },
       }
-      await authService.saveToken(user.id, refreshToken)
-      done(null, responseUser, { message: 'Success login!' })
+      await authService.saveToken(user.user.id, refreshToken)
+      done(null, user, { message: 'Success login!' })
     } catch (error) {
       done(error)
     }
   }
 )
 
-// const googleStrategy = new GoogleStrategy(
-//   {
-//     clientID: process.env.CLIENT_ID,
-//     clientSecret: process.env.CLIENT_SECRET,
-//     callbackURL,
-//   },
-//   async (accessToken, refreshToken, profile, email, done) => {
-//     console.log('email from google: ', email)
-//     console.log('profile from google: ', profile)
-//     let user = {}
-//     try {
-//       const currentUser = await findUserByGoogleId(profile.id)
-//       if (!currentUser) {
-//         await createUserFromGoogle(profile.displayName, profile.id)
-//         user = await findUserByGoogleId(profile.id)
-//       } else {
-//         user = { ...currentUser, accessToken }
-//       }
-//       done(null, user)
-//     } catch (error) {
-//       done(error)
-//     }
-//   }
-// )
 const googleStrategy = new GoogleStrategy(
   {
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL,
   },
-  async (accessToken, refreshToken, profile, email, done) => {
+  async (googleAccessToken, googleRefreshToken, profile, email, done) => {
     let user = {}
+
     try {
-      const currentUser = await userExists(email._json.email)
-      if (!currentUser) {
-        await createUserFromGoogle(
-          email._json.email,
-          email._json.sub,
-          refreshToken
+      const currentUser = await authService.findUser(email._json.email)
+      if (currentUser) {
+        const { accessToken, refreshToken } = await generateTokens(
+          currentUser.id,
+          currentUser.role
         )
-        const userFromDB = await userExists(email._json.email)
+
+        await authService.saveToken(currentUser.id, refreshToken)
         user = {
-          ...userFromDB,
           accessToken,
-          refresh_token: null,
+          refreshToken,
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            role: currentUser.role,
+          },
         }
       } else {
-        user = {
-          ...currentUser,
-          accessToken,
-          refresh_token: null,
-        }
+        user = await authService.createUserFromGoogle(email._json.email)
       }
       done(null, user)
     } catch (error) {
+      console.log('error in googleStrategy cathc: ', error)
       done(error)
     }
   }

@@ -17,8 +17,7 @@ class MeetupsController {
   async createMeetup(req, res) {
     try {
       const meetup = await meetupsService.create(req.body)
-      console.log('meetup: ', meetup)
-      res.status(status.created).json(meetup)
+      res.status(status.created).json({ message: 'Created!', meetup })
     } catch (err) {
       console.log(err)
       res.status(status.error).json({ message: err })
