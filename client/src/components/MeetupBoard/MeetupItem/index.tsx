@@ -18,7 +18,7 @@ import { meetupApi } from '@services/MeetupService'
 import { useAppSelector } from '@hooks/redux.hooks'
 
 export const MeetupItem = ({
-  id_meetup,
+  id,
   title,
   description,
   place,
@@ -47,7 +47,7 @@ export const MeetupItem = ({
 
   const handleConfirmDeleteMeetup = async (needToDelete: boolean) => {
     if (needToDelete) {
-      await deleteMeetup(id_meetup)
+      await deleteMeetup(id)
     }
     setIsDeleteModalOpen(false)
   }
@@ -125,7 +125,7 @@ export const MeetupItem = ({
             <CreateMeetupForm
               closeModal={handleCloseEdit}
               isEdited={true}
-              item={{ id_meetup, title, description, place, time, tags, userId }}
+              item={{ id, title, description, place, time, tags, userId }}
             />
           </ModalWindow>
         </CardActions>

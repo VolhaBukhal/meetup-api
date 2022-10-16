@@ -18,15 +18,14 @@ export const MeetupBoard = () => {
   } = meetupApi.useGetAllMeetupsQuery({ limit: 1000, search })
 
   const { data: userData } = authApi.useGetUserQuery('')
-  console.log('userData: ', userData)
 
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (userData) {
       const user = {
-        userId: userData.user_id,
-        userName: userData.email,
+        userId: userData.user.id,
+        userName: userData.user.email,
         token: userData.accessToken,
       }
       dispatch(setCredentials(user))

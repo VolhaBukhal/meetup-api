@@ -3,11 +3,13 @@ import { useFormik } from 'formik'
 import { CreateMeetupFormProps } from '@components/MeetupBoard/interfaces'
 import { initialValues } from './constants'
 import { validationSchema } from './schema'
+import { useAppSelector } from '@hooks/redux.hooks'
 import { meetupApi } from '@services/MeetupService'
 
 export const CreateMeetupForm = ({ closeModal, isEdited, item }: CreateMeetupFormProps) => {
   const [createMeetup] = meetupApi.useCreateMeetupMutation()
   const [updateMeetup] = meetupApi.useUpdateMeetupMutation()
+  const {userId} = useAppSelector(store => store.authReducer)
 
   const formik = useFormik({
     initialValues: isEdited ? { ...item, tags: item?.tags.join(',') } : initialValues,
@@ -20,12 +22,13 @@ export const CreateMeetupForm = ({ closeModal, isEdited, item }: CreateMeetupFor
         place: values.place || ' ',
         time: values.time || ' ',
         tags: tagsArr || ' ',
+        userId
       }
 
       const meetupForUpdate = {
         ...meetupForCreate,
-        id_meetup: item?.id_meetup || '',
-        userId: item?.userId || '',
+        id: item?.id || '',
+        userId
       }
 
       if (isEdited) {

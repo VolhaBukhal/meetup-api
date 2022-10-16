@@ -28,11 +28,10 @@ import { GoogleAuth } from '@components/Login/GoogleAuth'
 import 'react-toastify/dist/ReactToastify.css'
 
 export const Login = () => {
-  const [login, result] = authApi.useLoginMutation()
-  const dispatch = useAppDispatch()
-
-  const { data, isSuccess, isLoading, error } = result
   const [showPassword, setShowPassword] = useState(false)
+  const [login, result] = authApi.useLoginMutation()
+  const { data, isSuccess, isLoading, error } = result
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const formik = useFormik({
     initialValues,
