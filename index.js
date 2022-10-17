@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const passport = require('passport')
-const models = require('@models/models')
 const flash = require('connect-flash')
 const sequelize = require('./config/db')
 
