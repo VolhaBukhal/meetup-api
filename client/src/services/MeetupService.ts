@@ -63,7 +63,7 @@ export const meetupApi = createApi({
     }),
     updateMeetup: builder.mutation<IMeetup, IMeetup>({
       query: (meetup) => ({
-        url: `/meetups/${meetup.id_meetup}`,
+        url: `/meetups/${meetup.id}`,
         method: 'PUT',
         body: meetup,
       }),

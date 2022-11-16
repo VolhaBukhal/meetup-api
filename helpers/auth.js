@@ -1,45 +1,5 @@
-const { pool } = require('@config/db')
-const { v4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
-const userExists = async (email) => {
-  const data = await pool.query('SELECT * FROM users WHERE email=$1', [email])
-
-  if (data.rowCount == 0) return false
-  return data.rows[0]
-}
-
-const findUserById = async (id) => {
-  const data = await pool.query('SELECT * FROM users WHERE user_id=$1', [id])
-
-  if (data.rowCount == 0) return false
-  return data.rows[0]
-}
-
-const createUser = async (email, password, role) => {
-  const id = v4()
-  const salt = await bcrypt.genSalt(10)
-  const hash = await bcrypt.hash(password, salt)
-
-  const userRole = role ?? 'USER'
-
-  const data = await pool.query(
-    'INSERT INTO users(user_id, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *',
-    [id, email, hash, userRole]
-  )
-
-  if (data.rowCount == 0) {
-    return false
-  }
-  return data.rows[0]
-}
-
-const getAllUsers = async () => {
-  const data = await pool.query('SELECT * FROM users')
-
-  return data.rows
-}
 
 const matchPassword = async (password, hashPassword) => {
   const match = await bcrypt.compare(password, hashPassword)
@@ -61,93 +21,17 @@ const generateTokens = async (id, roles) => {
 
   return { accessToken, refreshToken }
 }
-
-const saveToken = async (userId, refreshToken) => {
-  const tokenData = await pool.query(
-    'SELECT refresh_token FROM users WHERE user_id = $1',
-    [userId]
-  )
-
-  if (tokenData.rowCount !== 0) {
-    await pool.query('UPDATE users SET refresh_token = $1 WHERE user_id = $2', [
-      refreshToken,
-      userId,
-    ])
-  } else {
-    console.log('there is not refresh token in db!')
-  }
-}
-
-const deleteRefreshToken = async (refreshToken) => {
-  await pool.query(
-    'UPDATE users SET refresh_token = $1 WHERE refresh_token = $2',
-    [null, refreshToken]
-  )
-}
-
-const findToken = async (refreshToken) => {
-  const tokenData = await pool.query(
-    'SELECT * FROM users WHERE refresh_token = $1',
-    [refreshToken]
-  )
-  return tokenData
-}
-
 const validateRefreshToken = (refreshToken) => {
   try {
     const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
     return userData
-  } catch {
+  } catch (err) {
     return null
-  }
-}
-const validateAccessToken = (accessToken) => {
-  try {
-    const userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
-    return userData
-  } catch {
-    return null
-  }
-}
-
-const refreshTokenInDB = async (refreshToken) => {
-  if (!refreshToken) {
-    throw Error('User is not authorized!')
-  }
-
-  const userData = validateRefreshToken(refreshToken)
-
-  const tokenFromDB = await findToken(refreshToken)
-
-  if (!userData || !tokenFromDB) {
-    throw Error('User is not authorized')
-  }
-
-  const user = await findUserById(userData.id)
-  const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
-    user.user_id,
-    user.role
-  )
-  await saveToken(user.user_id, refreshToken)
-  return { accessToken: accessToken }
-}
-
-const checkTokenIsExpired = (expireTime) => {
-  if (Date.now() >= expireTime * 1000) {
-    return false
   }
 }
 
 module.exports = {
-  userExists,
-  findUserById,
-  createUser,
-  getAllUsers,
   matchPassword,
   generateTokens,
-  saveToken,
-  findToken,
-  refreshTokenInDB,
-  checkTokenIsExpired,
-  deleteRefreshToken,
+  validateRefreshToken,
 }

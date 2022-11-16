@@ -13,11 +13,14 @@
   },
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
     "no-console": "off",
     "import/prefer-default-export": "off",
     "import/extensions": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-underscore-dangle": "off",
+    "import/no-unresolved": "off",
+    "class-methods-use-this": "off"
   },
   "settings": {
     "import/resolver": {
@@ -31,7 +34,9 @@
             ["helpers", "./helpers/*"],
             ["middleware", "./middleware/*"],
             ["validation", "./validation/*"],
-            ["routs", "./routs/*"]
+            ["routs", "./routs/*"],
+            ["services", "./services/*"],
+            ["models", "./models/*"]
           ]
         },
         "extensions": [".js"]

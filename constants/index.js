@@ -15,13 +15,14 @@ const status = {
 const infoMessages = {
   USER_NOT_AUTHORIZED: 'User is not authorized!',
   USER_NOT_FOUND: "User hasn't been found!",
+  USER_EXIST: 'User is already exist!',
   ONLY_ADMIN_ACCESS: 'Access has only admin!',
   JWT_EXPIRED: 'Jwt is expired!',
   INVALID_PASSWORD: 'Invalid password, please, try again!',
   WRONG_REQUEST: 'Wrong request, try again!',
   NO_MEETUP_IN_DB: 'No meetup in database with id:',
   UPDATED_MEETUP: 'Meetup is updated!',
-  DELETED_MEETUP: '- meetup with is deleted from database!',
+  DELETED_MEETUP: '- meetup is deleted from database!',
 }
 
 const userRoles = {
@@ -29,9 +30,15 @@ const userRoles = {
   USER: 'USER',
 }
 
+const callbackURL =
+  process.env.NODE_ENV === 'production'
+    ? process.env.GOOGLE_CALLBACK_URL
+    : `http://localhost:5000${process.env.GOOGLE_CALLBACK_URL}`
+
 module.exports = {
   errorMessage,
   infoMessages,
   status,
   userRoles,
+  callbackURL,
 }

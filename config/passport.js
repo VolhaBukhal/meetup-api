@@ -1,15 +1,12 @@
 const passport = require('passport')
+const GoogleStrategy = require('passport-google-oauth20').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local')
 const { ExtractJwt } = require('passport-jwt')
+const authService = require('@services/authService')
 
-const {
-  userExists,
-  createUser,
-  generateTokens,
-  saveToken,
-  matchPassword,
-} = require('@helpers/auth')
+const { generateTokens } = require('@helpers/auth')
+const { callbackURL } = require('@constants')
 
 const opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -31,14 +28,16 @@ const signupStrategy = new LocalStrategy(
   },
   async (req, email, password, done) => {
     try {
-      const userIsExists = await userExists(email)
-      if (userIsExists) {
-        return done(null, false, { message: 'User is already exist!!!!!' })
+      const userFromDB = await authService.findUser(email)
+      if (userFromDB) {
+        return done(null, userFromDB, { message: 'User is already exist!' })
       }
-      const user = await createUser(email, password, req.body.role)
+
+      const user = await authService.createUser(email, password, req.body.role)
       return done(null, user, { message: 'User is registered!' })
-    } catch (error) {
-      done(error)
+    } catch (err) {
+      console.log('error in authUser: ', err)
+      done(err)
     }
   }
 )
@@ -47,38 +46,90 @@ const loginStrategy = new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password',
+    passReqToCallback: true,
   },
-  async (email, password, done) => {
+  async (req, email, password, done) => {
+    let user = {}
     try {
-      const user = await userExists(email)
+      user = await authService.findUser(email)
       if (!user) {
-        return done(null, false, {
-          message: `User with ${email} hasn't been found`,
-        })
+        return done(null, false)
       }
-      const validPassword = await matchPassword(password, user.password)
+      const validPassword = await authService.matchPassword(
+        password,
+        user.password
+      )
       if (!validPassword) {
-        return done(null, false, { message: `Invalid password!` })
+        return done(null, user, { message: `Invalid password!` })
       }
       const { accessToken, refreshToken } = await generateTokens(
-        user.user_id,
+        user.id,
         user.role
       )
-      const responseUser = {
+      user = {
         accessToken,
         refreshToken,
-        user: { id: user.user_id, email: user.email, role: user.role },
+        user: { id: user.id, email: user.email, role: user.role },
       }
-      await saveToken(user.user_id, refreshToken)
-      return done(null, responseUser, { message: 'Success login!' })
+      await authService.saveToken(user.user.id, refreshToken)
+      done(null, user, { message: 'Success login!' })
     } catch (error) {
-      return done(error, false)
+      done(error)
     }
   }
 )
+
+const googleStrategy = new GoogleStrategy(
+  {
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL,
+  },
+  async (googleAccessToken, googleRefreshToken, profile, email, done) => {
+    let user = {}
+
+    try {
+      const currentUser = await authService.findUser(email._json.email)
+      if (currentUser) {
+        const { accessToken, refreshToken } = await generateTokens(
+          currentUser.id,
+          currentUser.role
+        )
+
+        await authService.saveToken(currentUser.id, refreshToken)
+        user = {
+          accessToken,
+          refreshToken,
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            role: currentUser.role,
+          },
+        }
+      } else {
+        user = await authService.createUserFromGoogle(email._json.email)
+      }
+      done(null, user)
+    } catch (error) {
+      console.log('error in googleStrategy cathc: ', error)
+      done(error)
+    }
+  }
+)
+
+passport.serializeUser((user, done) => {
+  // loads into req.session.passport.user
+  done(null, user)
+})
+
+passport.deserializeUser((user, done) => {
+  // loads into req.user
+  done(null, user)
+})
 
 module.exports = {
   jwtStrategy,
   signupStrategy,
   loginStrategy,
+  googleStrategy,
 }

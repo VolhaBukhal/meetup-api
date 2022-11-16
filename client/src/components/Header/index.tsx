@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent } from 'react'
+import { useState, MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -24,8 +24,7 @@ export const Header = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
   const { isAuthorized, userName } = useAppSelector((store) => store.authReducer)
-  const [logout, result] = authApi.useLogoutMutation()
-  const { isSuccess, error } = result
+  const [logout] = authApi.useLogoutMutation()
 
   const dispatch = useAppDispatch()
 
@@ -50,16 +49,6 @@ export const Header = () => {
       dispatch(removeCredentials())
     }
   }
-
-  useEffect(() => {
-    if (isSuccess) {
-      console.log('logout success')
-    } else {
-      if (error) {
-        console.log('error in logout')
-      }
-    }
-  }, [])
 
   const settings = isAuthorized ? settingsAuthorized : settingsUnAuthorized
 
@@ -160,7 +149,7 @@ export const Header = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title={isAuthorized ? userName : 'Authorization'}>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userName} src='/static/images/avatar/2.jpg' />
+                <Avatar alt={userName} />
               </IconButton>
             </Tooltip>
             <Menu
