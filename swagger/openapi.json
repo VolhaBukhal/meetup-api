@@ -22,7 +22,6 @@
       "type": "apiKey",
       "name": "Authorization",
       "in": "header"
-
     }
   },
   "host": "localhost:5000",
@@ -37,9 +36,7 @@
   "paths": {
     "/meetups": {
       "get": {
-        "tags": [
-          "meetups"
-        ],
+        "tags": ["meetups"],
         "operationId": "getAllMeetups",
         "summary": "Finds meetups by name, description or place of location (ex: title=html&place=victor&time=2022-09-14)",
         "description": "Sorting, filtering, searching are available",
@@ -132,14 +129,12 @@
         }
       },
       "post": {
-        "tags": [
-          "meetups"
-        ],
+        "tags": ["meetups"],
         "security": [
           {
-             "bearerAuth": []
+            "bearerAuth": []
           }
-       ],
+        ],
         "operationId": "createMeetup",
         "summary": "Create meetup",
         "requestBody": {
@@ -182,9 +177,7 @@
     },
     "/meetups/{meetupId}": {
       "get": {
-        "tags": [
-          "meetups"
-        ],
+        "tags": ["meetups"],
         "operationId": "getMeetUpById",
         "parameters": [
           {
@@ -222,9 +215,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "meetups"
-        ],
+        "tags": ["meetups"],
         "operationId": "updateMeetup",
         "summary": "Update single meetup",
         "parameters": [
@@ -266,9 +257,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "meetups"
-        ],
+        "tags": ["meetups"],
         "operationId": "deleteMeetup",
         "summary": "Delete single meetup",
         "parameters": [
@@ -320,9 +309,7 @@
     },
     "/auth/registration": {
       "post": {
-        "tags": [
-          "User registration"
-        ],
+        "tags": ["User authorization"],
         "operationId": "registerUser",
         "summary": "User registration",
         "requestBody": {
@@ -364,9 +351,7 @@
     },
     "/auth/login": {
       "post": {
-        "tags": [
-          "User login"
-        ],
+        "tags": ["User authorization"],
         "operationId": "loginUser",
         "summary": "User login",
         "requestBody": {
@@ -412,9 +397,91 @@
           }
         }
       }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["User authorization"],
+        "operationId": "logoutUser",
+        "summary": "User logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MTczMCwiZXhwIjoxNjY0NDU4MTMwfQ.N7_WEzb8MIHHl2cy3eURuKaW8EMeOYucZ_45lsGH97s"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "log out successfully"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["User authorization"],
+        "operationId": "refreshToken",
+        "summary": "User refreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MTczMCwiZXhwIjoxNjY0NDU4MTMwfQ.N7_WEzb8MIHHl2cy3eURuKaW8EMeOYucZ_45lsGH97s"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU0ZTZjNTgxLWY4YWItNDc4YS05OTE4LTA4Zjg4NjEwMzQ2OSIsInJvbGVzIjoiVVNFUiIsImlhdCI6MTY2NDM3MzQ5OCwiZXhwIjoxNjY0Mzc1Mjk4fQ.YEvKtl2DcRj8dwKM6u4RJbeUYxIkkU4V4GCLHDMi5Lw"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Internal Server Error",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  
+
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -432,12 +499,7 @@
         }
       },
       "Meetup": {
-        "required": [
-          "title",
-          "description",
-          "time",
-          "place"
-        ],
+        "required": ["title", "description", "time", "place"],
         "type": "object",
         "properties": {
           "id_meetup": {
@@ -474,10 +536,7 @@
       },
       "Error": {
         "type": "object",
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "properties": {
           "code": {
             "type": "integer",

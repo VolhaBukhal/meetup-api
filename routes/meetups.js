@@ -1,20 +1,40 @@
-import express from 'express'
-import { getMeetups, createMeetup, getMeetupById, deleteMeetup, updateMeetup} from '../controllers/meetups.js'
-import { meetupValidationMiddleware } from '../middleware/validationMiddleware.js'
-import { authMiddleware } from '../middleware/authMiddleware.js'
-import { meetupSchema, updateMeetupSchema } from '../validation/schemas.js'
+const express = require('express')
+const { meetupSchema, updateMeetupSchema } = require('@validation/schemas')
+const {
+  meetupValidationMiddleware,
+} = require('@middleware/validationMiddleware')
+const passport = require('passport')
+const meetupsController = require('@controllers/meetupsController')
+
+require('@config/passport')
+const { jwtStrategy } = require('@config/passport')
+
+passport.use(jwtStrategy)
 
 const router = express.Router()
 
-router.get('/', getMeetups)
+router.get('/', meetupsController.getMeetups)
 
-router.post('/', authMiddleware, meetupValidationMiddleware(meetupSchema), createMeetup)
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  meetupValidationMiddleware(meetupSchema),
+  meetupsController.createMeetup
+)
 
-router.get('/:id', getMeetupById)
+router.get('/:id', meetupsController.getMeetupById)
 
-router.delete('/:id', authMiddleware, deleteMeetup)
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  meetupsController.deleteMeetup
+)
 
-router.patch('/:id', authMiddleware, meetupValidationMiddleware(updateMeetupSchema), updateMeetup)
+router.put(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  meetupValidationMiddleware(updateMeetupSchema),
+  meetupsController.updateMeetup
+)
 
-
-export default router
+module.exports = router
